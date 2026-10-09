@@ -3,6 +3,7 @@ package com.example.githubwidget.ui.stats
 import android.graphics.Bitmap
 import androidx.test.core.app.ApplicationProvider
 import com.example.githubwidget.data.SampleData
+import com.example.githubwidget.design.NumberFont
 import com.example.githubwidget.design.WidgetDesign
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -21,10 +22,12 @@ class ShareImageRenderTest {
     @Test
     fun renderShareImage() {
         val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val bmp = ShareImage.render(ctx, SampleData.userData, null, WidgetDesign())
-        assertEquals(1080, bmp.width)
-        assertEquals(1350, bmp.height)
         val out = File("build/share-renders").apply { mkdirs() }
-        File(out, "share_year.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        NumberFont.entries.forEach { font ->
+            val bmp = ShareImage.render(ctx, SampleData.userData, null, WidgetDesign(), font)
+            assertEquals(1080, bmp.width)
+            assertEquals(1350, bmp.height)
+            File(out, "share_${font.name.lowercase()}.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
     }
 }

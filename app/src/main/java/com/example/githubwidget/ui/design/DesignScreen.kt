@@ -48,8 +48,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.example.githubwidget.data.Repository
 import com.example.githubwidget.data.SampleData
@@ -57,6 +59,7 @@ import com.example.githubwidget.design.Background
 import com.example.githubwidget.design.CellShape
 import com.example.githubwidget.design.Corners
 import com.example.githubwidget.design.Palette
+import com.example.githubwidget.design.NumberFont
 import com.example.githubwidget.design.Palettes
 import com.example.githubwidget.design.Range
 import com.example.githubwidget.design.WidgetDesign
@@ -74,6 +77,7 @@ import com.example.githubwidget.ui.components.WidgetPinning
 import com.example.githubwidget.ui.components.WidgetPreview
 import com.example.githubwidget.ui.components.selectionBorder
 import com.example.githubwidget.ui.theme.AppTheme
+import com.example.githubwidget.ui.theme.numberFontFamily
 import com.example.githubwidget.widget.WidgetUpdater
 
 /**
@@ -159,6 +163,11 @@ fun DesignScreen(onOpenStats: () -> Unit) {
             item {
                 SectionCard(title = "Style") {
                     LayoutChoices(design, data, onSelect = { l -> update { it.copy(layout = l) } })
+                }
+            }
+            item {
+                SectionCard(title = "Numbers") {
+                    NumberFontChoice(onSelect = { Repository.setNumberFont(it) })
                 }
             }
             item {
@@ -403,6 +412,24 @@ private fun LayoutChoices(design: WidgetDesign, data: com.example.githubwidget.d
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NumberFontChoice(onSelect: (NumberFont) -> Unit) {
+    val selected by Repository.numberFont.collectAsState()
+    val context = LocalContext.current
+    val family = remember(selected) { numberFontFamily(context, selected) }
+    Field("Number font", hint = "Used for big numbers in Stats and the share image") {
+        SegmentedChoice(NumberFont.entries, selected, { it.label }, onSelect)
+        Spacer(Modifier.height(14.dp))
+        Text(
+            "1,182  ·  19 days",
+            fontFamily = family,
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.5).sp),
+            fontWeight = FontWeight.Bold,
+            color = AppTheme.colors.textPrimary,
+        )
     }
 }
 
