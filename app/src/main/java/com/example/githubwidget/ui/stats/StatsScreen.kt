@@ -64,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.githubwidget.data.RefreshState
 import com.example.githubwidget.data.Repository
 import com.example.githubwidget.data.Stats
@@ -91,6 +92,9 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private val numbers: NumberFormat get() = NumberFormat.getIntegerInstance()
+
+/** Equal-width digits so counts line up and don't jitter as they change. */
+private const val TABULAR_NUMBERS = "tnum"
 
 private fun count(n: Int, one: String, many: String) = if (n == 1) "1 $one" else "${numbers.format(n)} $many"
 
@@ -294,6 +298,7 @@ private fun HeroCard(data: UserData, avatar: android.graphics.Bitmap?, stats: St
                 style = MaterialTheme.typography.displaySmall.copy(
                     fontSize = MaterialTheme.typography.displaySmall.fontSize * 1.35f,
                     lineHeight = MaterialTheme.typography.displaySmall.lineHeight * 1.3f,
+                    fontFeatureSettings = TABULAR_NUMBERS,
                 ),
                 fontWeight = FontWeight.Bold,
                 color = AppTheme.colors.textPrimary,
@@ -410,16 +415,21 @@ private fun StatTile(tile: Tile, modifier: Modifier = Modifier) {
                         ) { append(" ${tile.suffix}") }
                     }
                 },
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = 26.sp,
+                    lineHeight = 30.sp,
+                    letterSpacing = (-0.3).sp,
+                    fontFeatureSettings = TABULAR_NUMBERS,
+                ),
                 fontWeight = FontWeight.Bold,
                 color = AppTheme.colors.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 tile.label,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = AppTheme.colors.textSecondary,
                 maxLines = 2,
             )
@@ -451,7 +461,7 @@ private fun InsightCard(stats: Stats) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 numbers.format(last),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = TABULAR_NUMBERS),
                 color = AppTheme.colors.textPrimary,
                 modifier = Modifier.weight(1f, fill = false),
             )
