@@ -229,6 +229,8 @@ object Repository {
     fun setNumberFont(font: NumberFont) {
         _numberFont.value = font
         prefs().edit().putString(KEY_NUMBER_FONT, font.name).apply()
+        // The widgets draw their text in this font, so repaint them.
+        scope.launch { WidgetUpdater.updateAll(app) }
     }
 
     fun setRefreshHours(hours: Int) {

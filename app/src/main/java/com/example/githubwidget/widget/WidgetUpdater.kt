@@ -61,6 +61,7 @@ object WidgetUpdater {
         fun render(dark: Boolean) = drawn.getOrPut(Triple(size.width, size.height, dark)) {
             WidgetRenderer.render(
                 context, design, data, Repository.avatar.value, size.width, size.height, dark, placeholder,
+                Repository.numberFont.value,
             )
         }
 

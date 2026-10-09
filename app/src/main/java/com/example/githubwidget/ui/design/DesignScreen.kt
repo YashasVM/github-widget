@@ -166,8 +166,10 @@ fun DesignScreen(onOpenStats: () -> Unit) {
                 }
             }
             item {
-                SectionCard(title = "Numbers") {
-                    NumberFontChoice(onSelect = { Repository.setNumberFont(it) })
+                SectionCard(title = "Font") {
+                    Field("Typeface", hint = "Used for the widget, the numbers in Stats and the share image") {
+                        NumberFontChoice(onSelect = { Repository.setNumberFont(it) })
+                    }
                 }
             }
             item {
@@ -418,15 +420,37 @@ private fun LayoutChoices(design: WidgetDesign, data: com.example.githubwidget.d
 @Composable
 private fun NumberFontChoice(onSelect: (NumberFont) -> Unit) {
     val selected by Repository.numberFont.collectAsState()
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        NumberFont.entries.chunked(2).forEach { pair ->
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                pair.forEach { font ->
+                    FontCard(font, selected = font == selected, onClick = { onSelect(font) }, modifier = Modifier.weight(1f))
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun FontCard(font: NumberFont, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val family = remember(selected) { numberFontFamily(context, selected) }
-    Field("Number font", hint = "Used for big numbers in Stats and the share image") {
-        SegmentedChoice(NumberFont.entries, selected, { it.label }, onSelect)
-        Spacer(Modifier.height(14.dp))
+    val family = remember(font) { numberFontFamily(context, font) }
+    val shape = RoundedCornerShape(16.dp)
+    val border by animateColorAsState(if (selected) MaterialTheme.colorScheme.primary else AppTheme.colors.hairline, label = "font")
+    Column(
+        modifier
+            .clip(shape)
+            .border(selectionBorder(selected), border, shape)
+            .clickable(onClick = onClick)
+            .padding(14.dp),
+    ) {
+        Text(font.label, style = MaterialTheme.typography.labelMedium, color = AppTheme.colors.textSecondary)
+        Spacer(Modifier.height(6.dp))
         Text(
-            "1,182  ·  19 days",
+            "1,182",
             fontFamily = family,
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.5).sp),
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 30.sp, lineHeight = 34.sp, letterSpacing = (-0.5).sp),
             fontWeight = FontWeight.Bold,
             color = AppTheme.colors.textPrimary,
         )
