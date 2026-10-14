@@ -88,7 +88,9 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingRight">20dp</item>
         <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
     </style>
 
@@ -104,7 +106,9 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingRight">16dp</item>
         <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
     </style>
 
@@ -118,7 +122,9 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingRight">16dp</item>
         <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
     </style>
 
@@ -161,7 +167,9 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingEnd">6dp</item>
+        <item name="android:paddingRight">6dp</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">@style/TextAppearance.GH.Label</item>
