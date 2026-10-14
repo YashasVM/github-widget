@@ -1126,10 +1126,21 @@ class MainActivity : AppCompatActivity() {
         syncAll()
         load(Prefs.getUsername(this))
         if (Prefs.getUsername(this).isBlank()) input.requestFocus()
+        openAccountHook = { openAccount() }
+        if (intent?.getBooleanExtra(EXTRA_OPEN_ACCOUNT, false) == true) openAccount()
     }
 
     /** Assigned in onCreate: re-syncs controls + repaints cached data, no network. */
     private var refreshLook: (() -> Unit)? = null
+
+    /** Assigned in onCreate: shows the account card (from Settings / Activity). */
+    private var openAccountHook: (() -> Unit)? = null
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_OPEN_ACCOUNT, false)) openAccountHook?.invoke()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -1179,7 +1190,10 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private companion object {
-        const val KEY_TAB = "studio_tab"
+    companion object {
+        private const val KEY_TAB = "studio_tab"
+
+        /** Boolean extra: open the account card (username field) on arrival. */
+        const val EXTRA_OPEN_ACCOUNT = "open_account"
     }
 }

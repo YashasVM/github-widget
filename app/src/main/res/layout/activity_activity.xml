@@ -1,393 +1,506 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Activity (analytics). Top bar with back, then either the empty state
+    (an_empty: no username or no data yet) or the stats (an_content).
+    Edge-to-edge: ActivityActivity pads an_appbar (status bar) and the root
+    (navigation bar). Nothing has a fixed height, so 200% font wraps instead
+    of clipping.
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/an_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#010409"
-    android:fillViewport="true">
+    android:background="@color/gh_bg">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GH://ACTIVITY"
-        android:textColor="#39D353"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <TextView
-        android:id="@+id/an_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Activity"
-        android:textColor="#F0F6FC"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/an_updated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text=""
-        android:textColor="#8B949E"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <!-- Stat grid -->
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/an_appbar"
+        style="@style/Widget.GH.AppBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="0dp"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/an_toolbar"
+            style="@style/Widget.GH.Toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            android:background="#0D1117"
-            android:orientation="vertical"
-            android:padding="14dp">
+            app:title="Activity" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <TextView
-                android:id="@+id/an_total"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="contributions"
-                android:textColor="#8B949E"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:background="#0D1117"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/an_week"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="this week"
-                android:textColor="#8B949E"
-                android:textSize="11sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/an_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            android:background="#0D1117"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/an_month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="this month"
-                android:textColor="#8B949E"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:background="#0D1117"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/an_avg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="avg / active day"
-                android:textColor="#8B949E"
-                android:textSize="11sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
-            android:background="#0D1117"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/an_active"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="active days"
-                android:textColor="#8B949E"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:background="#0D1117"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/an_best"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="best day"
-                android:textColor="#8B949E"
-                android:textSize="11sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Streaks -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Streaks"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#0D1117"
-        android:orientation="vertical"
-        android:padding="14dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingStart="@dimen/gh_gutter"
+            android:paddingEnd="@dimen/gh_gutter"
+            android:paddingBottom="@dimen/gh_space_xl">
 
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/an_title"
+                style="@style/Widget.GH.Text.Display"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Current streak"
-                android:textColor="#8B949E"
-                android:textSize="12sp" />
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Activity" />
 
             <TextView
-                android:id="@+id/an_streak"
-                android:layout_width="wrap_content"
+                android:id="@+id/an_updated"
+                style="@style/Widget.GH.Text.Caption"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#39D353"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
+                android:layout_marginTop="2dp"
+                android:text="" />
+
+            <!-- ===== Empty state: no username, or nothing cached yet ===== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/an_empty"
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_l"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/gh_space_l">
+
+                    <ImageView
+                        android:id="@+id/an_empty_graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/gh_space_l"
+                        android:adjustViewBounds="true"
+                        android:alpha="0.7"
+                        android:importantForAccessibility="no"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:id="@+id/an_empty_title"
+                        style="@style/Widget.GH.Text.Headline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No activity yet" />
+
+                    <TextView
+                        android:id="@+id/an_empty_body"
+                        style="@style/Widget.GH.Text.Body.Muted"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_s"
+                        android:text="" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/an_empty_action"
+                        style="@style/Widget.GH.Button.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_l"
+                        android:text="Set up"
+                        app:icon="@drawable/ic_ui_arrow_forward_24"
+                        app:iconGravity="textEnd" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===== Stats ===== -->
+            <LinearLayout
+                android:id="@+id/an_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                style="@style/Widget.GH.Text.Section.Group"
+                android:text="Last 12 months" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/an_total_tile"
+                    style="@style/Widget.GH.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_m">
+
+                        <TextView
+                            android:id="@+id/an_total"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="–" />
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:hyphenationFrequency="full"
+                            android:text="contributions" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/an_week_tile"
+                    style="@style/Widget.GH.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/gh_space_s"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_m">
+
+                        <TextView
+                            android:id="@+id/an_week"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="–" />
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="this week" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_s"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/an_month_tile"
+                    style="@style/Widget.GH.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_m">
+
+                        <TextView
+                            android:id="@+id/an_month"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="–" />
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="this month" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/an_avg_tile"
+                    style="@style/Widget.GH.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/gh_space_s"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_m">
+
+                        <TextView
+                            android:id="@+id/an_avg"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="–" />
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="avg per active day" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_s"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/an_active_tile"
+                    style="@style/Widget.GH.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_m">
+
+                        <TextView
+                            android:id="@+id/an_active"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="–" />
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="active days" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/an_best_tile"
+                    style="@style/Widget.GH.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/gh_space_s"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_m">
+
+                        <TextView
+                            android:id="@+id/an_best"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="–" />
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="best day" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <TextView
+                style="@style/Widget.GH.Text.Section.Group"
+                android:text="Streaks" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/gh_space_l">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:focusable="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Current streak" />
+
+                        <TextView
+                            android:id="@+id/an_streak"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="–" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/gh_space_l"
+                        android:focusable="true"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.GH.Text.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Longest streak" />
+
+                        <TextView
+                            android:id="@+id/an_longest"
+                            style="@style/Widget.GH.Text.Stat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="–" />
+                    </LinearLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/an_milestone_bar"
+                        style="@style/Widget.GH.Meter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_m"
+                        android:importantForAccessibility="no"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/an_milestone"
+                        style="@style/Widget.GH.Text.Body.Muted"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_s"
+                        android:text="" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/Widget.GH.Text.Section.Group"
+                android:text="Activity by weekday" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/rows_weekday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/gh_space_l"
+                    android:paddingTop="@dimen/gh_space_m"
+                    android:paddingEnd="@dimen/gh_space_l"
+                    android:paddingBottom="@dimen/gh_space_m" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/Widget.GH.Text.Section.Group"
+                android:text="Personal records" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/rows_records"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/gh_space_l"
+                    android:paddingTop="@dimen/gh_space_m"
+                    android:paddingEnd="@dimen/gh_space_l"
+                    android:paddingBottom="@dimen/gh_space_m" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/Widget.GH.Text.Section.Group"
+                android:text="Insights" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/rows_insights"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/gh_space_l"
+                    android:paddingTop="@dimen/gh_space_m"
+                    android:paddingEnd="@dimen/gh_space_l"
+                    android:paddingBottom="@dimen/gh_space_m" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/Widget.GH.Text.Section.Group"
+                android:text="Achievements" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/rows_achievements"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/gh_space_l"
+                    android:paddingTop="@dimen/gh_space_m"
+                    android:paddingEnd="@dimen/gh_space_l"
+                    android:paddingBottom="@dimen/gh_space_m" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share"
+                style="@style/Widget.GH.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_xl"
+                android:text="Share contribution card"
+                app:icon="@drawable/ic_ui_share_24"
+                app:iconGravity="textStart" />
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Longest streak"
-                android:textColor="#8B949E"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/an_longest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#F0F6FC"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/an_milestone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text=""
-            android:textColor="#8B949E"
-            android:textSize="11sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <!-- Weekday breakdown -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Activity by weekday"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/rows_weekday"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#0D1117"
-        android:orientation="vertical"
-        android:padding="14dp" />
-
-    <!-- Personal records -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Personal records"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/rows_records"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#0D1117"
-        android:orientation="vertical"
-        android:padding="14dp" />
-
-    <!-- Insights -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Insights"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/rows_insights"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#0D1117"
-        android:orientation="vertical"
-        android:padding="14dp" />
-
-    <!-- Achievements -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Achievements"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/rows_achievements"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#0D1117"
-        android:orientation="vertical"
-        android:padding="6dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_share"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="20dp"
-        android:text="Share contribution card"
-        app:backgroundTint="#238636"
-        app:cornerRadius="12dp" />
-
-</LinearLayout>
-</ScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
