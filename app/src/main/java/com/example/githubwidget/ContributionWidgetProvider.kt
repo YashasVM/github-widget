@@ -175,7 +175,7 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         )
 
     private fun baseViews(context: Context, widgetId: Int): RemoteViews {
-        val views = RemoteViews(context.packageName, R.layout.widget_contribution)
+        val views = RemoteViews(context.packageName, Fonts.widgetLayout(context))
         val style = WidgetInstance.getStyle(context, widgetId)
         // Configured widgets keep their own opacity; otherwise the Studio
         // background opacity rules (it migrates the old card opacity).
