@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -19,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.card.MaterialCardView
@@ -68,6 +70,13 @@ object Ui {
             (inflater.inflate(R.layout.gh_segment, group, false) as MaterialButton).also { b ->
                 b.id = View.generateViewId()
                 b.text = label
+                // Large font scales: shrink to fit the segment instead of cutting
+                // words ("Rou…"), never above the normal 13sp or below 12dp.
+                b.maxLines = 1
+                b.ellipsize = null
+                TextViewCompat.setAutoSizeTextTypeUniformWithPresetSizes(
+                    b, autoSizes(group.context), TypedValue.COMPLEX_UNIT_PX
+                )
                 b.setOnClickListener {
                     tick(it)
                     onPick(i)
@@ -75,6 +84,14 @@ object Ui {
                 group.addView(b)
             }
         }
+    }
+
+    /** Candidate text sizes (px) from 12dp up to the scaled 13sp label size. */
+    private fun autoSizes(context: Context): IntArray {
+        val dm = context.resources.displayMetrics
+        val min = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12f, dm).toInt()
+        val max = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 13f, dm).toInt()
+        return (min..maxOf(min, max)).toList().toIntArray()
     }
 
     /** Wrapping single-choice chips; for rows with long or many labels. */
