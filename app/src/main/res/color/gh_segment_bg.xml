@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fill of a selectable segment / chip: tonal green when checked. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/gh_accent_tonal" android:state_checked="true" />
+    <item android:color="@android:color/transparent" />
+</selector>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4/8 dp spacing grid, corner radii and touch sizes shared by app screens. -->
+<resources>
+    <dimen name="gh_space_xs">4dp</dimen>
+    <dimen name="gh_space_s">8dp</dimen>
+    <dimen name="gh_space_m">12dp</dimen>
+    <dimen name="gh_space_l">16dp</dimen>
+    <dimen name="gh_space_xl">24dp</dimen>
+    <dimen name="gh_space_xxl">32dp</dimen>
+    <!-- Page side gutter -->
+    <dimen name="gh_gutter">16dp</dimen>
+
+    <dimen name="gh_radius_s">8dp</dimen>
+    <dimen name="gh_radius_m">12dp</dimen>
+    <dimen name="gh_radius_l">16dp</dimen>
+
+    <dimen name="gh_touch_min">48dp</dimen>
+    <dimen name="gh_button_min">52dp</dimen>
+    <dimen name="gh_swatch">48dp</dimen>
+</resources>

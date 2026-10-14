@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    GH type scale. Bundled fonts only: Space Grotesk (headings, button labels),
+    Inter (body, labels) and JetBrains Mono (numbers, hex, timestamps).
+    Minimum size is 12sp. TextAppearance.GH.* carry no color so they can feed the
+    Material slots in Theme.GitHubWidget; Widget.GH.Text.* (styles.xml) add color.
+-->
+<resources>
+
+    <!-- Screen titles: "@octocat", "Settings" -->
+    <style name="TextAppearance.GH.Display" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+        <item name="fontFamily">@font/space_grotesk</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="lineHeight">34sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Card and dialog headlines -->
+    <style name="TextAppearance.GH.Headline" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+        <item name="fontFamily">@font/space_grotesk</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="lineHeight">28sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Card titles, list-row titles -->
+    <style name="TextAppearance.GH.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+        <item name="fontFamily">@font/space_grotesk</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">24sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Section headers inside a screen ("Theme", "Range") -->
+    <style name="TextAppearance.GH.Section" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+        <item name="fontFamily">@font/space_grotesk</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">22sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Paragraphs, descriptions, insights -->
+    <style name="TextAppearance.GH.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">20sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Larger body for inputs and checkbox labels -->
+    <style name="TextAppearance.GH.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">22sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Field labels, chip text, helper text -->
+    <style name="TextAppearance.GH.Label" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">13sp</item>
+        <item name="lineHeight">18sp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Smallest text in the app (12sp): captions, footnotes -->
+    <style name="TextAppearance.GH.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">16sp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Button and tab labels -->
+    <style name="TextAppearance.GH.Button" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+        <item name="fontFamily">@font/space_grotesk</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Numbers, hex values, timestamps. Tabular figures so digits line up. -->
+    <style name="TextAppearance.GH.Mono" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="fontFamily">@font/jetbrains_mono</item>
+        <item name="android:textSize">13sp</item>
+        <item name="lineHeight">18sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- Decorative mono eyebrow above titles ("GH://HOME") -->
+    <style name="TextAppearance.GH.Eyebrow" parent="TextAppearance.GH.Mono">
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <!-- Big numbers in stat tiles. Proportional face with tabular figures:
+         no "1 , 408" gap that monospace commas cause. -->
+    <style name="TextAppearance.GH.Stat" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+        <item name="fontFamily">@font/space_grotesk</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">24sp</item>
+        <item name="lineHeight">30sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+</resources>

@@ -1,3 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    GH design tokens (dark only). Contrast ratios are WCAG 2.x against gh_bg
+    unless noted. Use these instead of hex literals in app screens. The
+    homescreen widget and the share card keep their own colors on purpose.
+-->
 <resources>
     <color name="ic_launcher_background">#0D1117</color>
+
+    <!-- Surfaces, darkest to lightest -->
+    <color name="gh_bg">#010409</color>
+    <color name="gh_surface">#0D1117</color>
+    <color name="gh_surface_raised">#161B22</color>
+    <color name="gh_surface_control">#21262D</color>
+    <color name="gh_surface_bright">#2D333B</color>
+
+    <!-- Lines: gh_outline is >= 3:1 on gh_bg (3.5) and gh_surface (3.2), use it for
+         control boundaries. gh_outline_variant is decorative only (card edges, dividers). -->
+    <color name="gh_outline">#5C6570</color>
+    <color name="gh_outline_variant">#30363D</color>
+
+    <!-- Text: primary 18:1, muted 6.7:1 on bg (5.6:1 on surface_raised) -->
+    <color name="gh_text">#F0F6FC</color>
+    <color name="gh_text_muted">#8B949E</color>
+    <color name="gh_text_disabled">#6E7681</color>
+
+    <!-- Accent: bright green for indicators and highlights (on_accent text 10.4:1).
+         accent_button is the filled-CTA green: white text 4.63:1. -->
+    <color name="gh_accent">#39D353</color>
+    <color name="gh_on_accent">#010409</color>
+    <color name="gh_accent_button">#238636</color>
+    <color name="gh_on_accent_button">#FFFFFF</color>
+    <!-- Selected chip/segment fill; gh_text on it is 12:1 -->
+    <color name="gh_accent_tonal">#133A21</color>
+    <!-- Accent on light (inverse) surfaces such as the Snackbar action -->
+    <color name="gh_accent_inverse">#1A7F37</color>
+
+    <!-- Danger: gh_danger on gh_surface 5.6:1; on_danger_container on container 9:1 -->
+    <color name="gh_danger">#F85149</color>
+    <color name="gh_danger_container">#2D1214</color>
+    <color name="gh_on_danger_container">#FFDCD7</color>
 </resources>

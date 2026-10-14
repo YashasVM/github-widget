@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Border of a selectable segment / chip: accent when checked, 3:1 outline otherwise. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/gh_accent" android:state_checked="true" />
+    <item android:color="@color/gh_outline" />
+</selector>
