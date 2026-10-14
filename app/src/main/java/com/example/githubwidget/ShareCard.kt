@@ -165,7 +165,8 @@ object ShareCard {
         } else {
             Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
-        val numbers = if (font != null) bold else Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        // Proportional bold with tabular figures: monospace spaced out "1 , 408".
+        val numbers = bold
         val k = font?.scale ?: 1f
 
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -182,6 +183,7 @@ object ShareCard {
             color = accent
             textSize = 62f * k
             typeface = numbers
+            fontFeatureSettings = "tnum"
         }
         val bigPaint2 = Paint(bigPaint).apply { color = primary }
         val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
