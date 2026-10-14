@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TalkBack can jump between setup sections (headings navigation). -->
+    <style name="Cfg.Section" parent="Cfg.Section.Base">
+        <item name="android:accessibilityHeading">true</item>
+    </style>
+</resources>

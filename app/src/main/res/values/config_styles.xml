@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Styles for the widget setup screen (activity_widget_config.xml). Theme attrs only. -->
+<resources>
+
+    <style name="Cfg" />
+
+    <!-- Section title. values-v28 adds android:accessibilityHeading. -->
+    <style name="Cfg.Section.Base" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="Cfg.Section" parent="Cfg.Section.Base" />
+
+    <!-- Choice chip: single selection, checked state read by TalkBack, 48dp target. -->
+    <style name="Cfg.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/cfg_option_bg</item>
+        <item name="chipStrokeColor">@color/cfg_option_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/cfg_option_text</item>
+        <item name="checkedIconTint">?attr/colorPrimary</item>
+        <item name="chipMinTouchTargetSize">48dp</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+    </style>
+
+    <!-- Segment of a MaterialButtonToggleGroup (graph range). -->
+    <style name="Cfg.Segment" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="backgroundTint">@color/cfg_option_bg</item>
+        <item name="strokeColor">@color/cfg_option_stroke</item>
+        <item name="android:textColor">@color/cfg_option_text</item>
+    </style>
+
+    <style name="Cfg.Check" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <!-- Widget preview texts: same base sizes as the homescreen widget (widget_text.xml). -->
+    <style name="Cfg.PreviewText">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+</resources>
