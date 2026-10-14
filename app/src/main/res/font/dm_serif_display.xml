@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DM Serif Display: single display weight. SIL Open Font License 1.1 (assets/licenses). -->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font
+        android:font="@font/dm_serif_display_regular"
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        app:font="@font/dm_serif_display_regular"
+        app:fontStyle="normal"
+        app:fontWeight="400" />
+</font-family>
