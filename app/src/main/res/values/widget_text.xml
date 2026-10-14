@@ -1,31 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Text styles for the per-font widget layouts (widget_contribution_<font>.xml).
-    They mirror widget_contribution.xml; each variant only adds android:fontFamily.
-    The provider still applies the Studio text size at runtime.
+    Shared styles for the homescreen widget layouts (widget_contribution.xml, its
+    per-font variants widget_contribution_<font>.xml, and widget_preview.xml).
+    Variants only add android:fontFamily, so structure and sizes are set once here.
+    The provider still applies the Studio text size at runtime (applyTextSize).
 -->
 <resources>
-    <style name="WidgetText" />
+
+    <!-- ===== structure ===== -->
+
+    <!-- Root: @android:id/background. API 31+ adds clipToOutline (values-v31). -->
+    <style name="WidgetRoot.Base" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/widget_clip</item>
+    </style>
+
+    <style name="WidgetRoot" parent="WidgetRoot.Base" />
+
+    <style name="WidgetBg">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="WidgetContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">@dimen/widget_padding_h</item>
+        <item name="android:paddingEnd">@dimen/widget_padding_h</item>
+        <item name="android:paddingTop">@dimen/widget_padding_v</item>
+        <item name="android:paddingBottom">@dimen/widget_padding_v</item>
+    </style>
+
+    <!-- Title column + total. The end margin keeps clear of the refresh corner target. -->
+    <style name="WidgetHeaderRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">@dimen/widget_refresh_clearance</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="WidgetHeaderText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!-- Takes all height left between header and footer: never letterboxed by a fixed box. -->
+    <style name="WidgetGraph">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginTop">@dimen/widget_graph_gap</item>
+        <item name="android:contentDescription">@string/widget_graph_desc</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- 48dp touch target in the top-end corner, 20dp icon inside it. -->
+    <style name="WidgetRefresh">
+        <item name="android:layout_width">@dimen/widget_touch_target</item>
+        <item name="android:layout_height">@dimen/widget_touch_target</item>
+        <item name="android:layout_gravity">top|end</item>
+        <item name="android:padding">@dimen/widget_refresh_inset</item>
+        <item name="android:src">@drawable/ic_widget_refresh</item>
+        <item name="android:tint">@color/widget_text_secondary</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:contentDescription">@string/widget_refresh_desc</item>
+    </style>
+
+    <!-- ===== text ===== -->
+
+    <style name="WidgetText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
 
     <style name="WidgetText.Title">
-        <item name="android:textColor">#F0F6FC</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textColor">@color/widget_text</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:text">@string/widget_placeholder_title</item>
     </style>
 
     <style name="WidgetText.Subtitle">
-        <item name="android:textColor">#8B949E</item>
-        <item name="android:textSize">11sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textColor">@color/widget_text_secondary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:text">@string/widget_placeholder_subtitle</item>
     </style>
 
     <style name="WidgetText.Total">
-        <item name="android:textColor">#39D353</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:textColor">@color/widget_accent</item>
+        <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="WidgetText.Updated">
-        <item name="android:textColor">#8B949E</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textColor">@color/widget_text_secondary</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:visibility">gone</item>
     </style>
 </resources>

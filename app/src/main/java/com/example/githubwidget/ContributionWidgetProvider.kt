@@ -10,11 +10,11 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import java.text.NumberFormat
-import java.util.Locale
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -51,26 +51,44 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         val stats: ContributionStats?
     )
 
-    /** How much to show, based on the widget's current minimum width. */
-    private data class SizeClass(
-        val maxWeeks: Int,
-        val monthLabels: Boolean,
-        val showFooter: Boolean,
-        val shortSubtitle: Boolean
-    )
+    /**
+     * How much to show at the widget's current on-screen size (width and height):
+     * weeks that fill the graph area, month labels, footer, compact header.
+     */
+    private fun sizeClass(context: Context, mgr: AppWidgetManager, widgetId: Int): WidgetCopy.Fit {
+        val (wDp, hDp) = sizeDp(context, mgr, widgetId)
+        return WidgetCopy.fit(wDp, hDp, textScale(context))
+    }
 
-    private fun sizeClass(mgr: AppWidgetManager, widgetId: Int): SizeClass {
-        return try {
+    /** Studio text size times the font's own scale (e.g. Press Start 2P runs wide). */
+    private fun textScale(context: Context): Float =
+        Studio.textScale(Studio.getTextSize(context)) * Fonts.selected(context).scale
+
+    /**
+     * The widget's on-screen size in dp for the current orientation (portrait:
+     * min width x max height; landscape: max width x min height), or the
+     * widget_info default when the launcher hasn't reported one.
+     */
+    private fun sizeDp(context: Context, mgr: AppWidgetManager, widgetId: Int): Pair<Int, Int> {
+        var wDp = 0
+        var hDp = 0
+        try {
             val opts = mgr.getAppWidgetOptions(widgetId)
-            val minW = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250)
-            when {
-                minW < 180 -> SizeClass(maxWeeks = 12, monthLabels = false, showFooter = false, shortSubtitle = true)
-                minW < 320 -> SizeClass(maxWeeks = 26, monthLabels = false, showFooter = true, shortSubtitle = false)
-                else -> SizeClass(maxWeeks = 52, monthLabels = true, showFooter = true, shortSubtitle = false)
-            }
+            val landscape = context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            wDp = opts.getInt(
+                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH else AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0
+            )
+            hDp = opts.getInt(
+                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT else AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0
+            )
         } catch (_: Exception) {
-            SizeClass(maxWeeks = 26, monthLabels = false, showFooter = true, shortSubtitle = false)
+            // Fall through to the default size.
         }
+        if (wDp <= 0 || hDp <= 0) {
+            wDp = 250 // widget_info minWidth x minHeight
+            hDp = 110
+        }
+        return wDp to hDp
     }
 
     /** System update (widget added, boot, app updated): repaint, fetch only if stale. */
@@ -196,40 +214,47 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-    /**
-     * Tap map (predictable everywhere):
-     * header -> GitHub profile (or app when no username yet)
-     * graph  -> activity/analytics screen
-     * total  -> this widget's own configuration
-     * footer -> app home (customize defaults)
-     * refresh icon -> manual refresh
-     */
-    private fun bindTaps(context: Context, views: RemoteViews, widgetId: Int, username: String) {
-        val profileIntent = if (username.isBlank()) {
-            Intent(context, MainActivity::class.java)
-        } else {
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/$username"))
-        }
-        views.setOnClickPendingIntent(
-            R.id.widget_header, activityPi(context, widgetId, 1, profileIntent)
-        )
-        views.setOnClickPendingIntent(
-            R.id.widget_graph,
-            activityPi(context, widgetId, 2, Intent(context, ActivityActivity::class.java))
-        )
-        views.setOnClickPendingIntent(
-            R.id.widget_total,
-            activityPi(
-                context, widgetId, 3,
-                Intent(context, WidgetConfigActivity::class.java).putExtra(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId
-                )
+    private fun configPi(context: Context, widgetId: Int): PendingIntent =
+        activityPi(
+            context, widgetId, 3,
+            Intent(context, WidgetConfigActivity::class.java).putExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId
             )
         )
-        views.setOnClickPendingIntent(
-            R.id.widget_updated,
-            activityPi(context, widgetId, 4, Intent(context, MainActivity::class.java))
-        )
+
+    /**
+     * Tap map: three visible zones, no hidden ones.
+     * - whole card (graph, footer, padding) -> activity/analytics screen
+     * - header (name + subtitle)            -> GitHub profile
+     * - refresh icon (top-end corner)       -> manual refresh
+     * Configure: long-press -> "Reconfigure" on Android 12+ (widgetFeatures
+     * reconfigurable). Older launchers have no such menu, so there the big total
+     * number opens this widget's setup screen.
+     * Before a username is set, everything except refresh opens the app.
+     * A not-found username sends header taps to this widget's setup instead (see paint).
+     */
+    private fun bindTaps(context: Context, views: RemoteViews, widgetId: Int, username: String) {
+        if (username.isBlank()) {
+            val app = activityPi(context, widgetId, 1, Intent(context, MainActivity::class.java))
+            views.setOnClickPendingIntent(android.R.id.background, app)
+            views.setOnClickPendingIntent(R.id.widget_header, app)
+            views.setOnClickPendingIntent(R.id.widget_graph, app)
+        } else {
+            val activity = activityPi(context, widgetId, 2, Intent(context, ActivityActivity::class.java))
+            views.setOnClickPendingIntent(android.R.id.background, activity)
+            views.setOnClickPendingIntent(R.id.widget_graph, activity)
+            views.setOnClickPendingIntent(
+                R.id.widget_header,
+                activityPi(
+                    context, widgetId, 1,
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/$username"))
+                )
+            )
+            views.setOnClickPendingIntent(
+                R.id.widget_total,
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) configPi(context, widgetId) else activity
+            )
+        }
         val refresh = Intent(context, ContributionWidgetProvider::class.java).apply {
             action = ACTION_REFRESH
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(widgetId))
@@ -254,24 +279,7 @@ class ContributionWidgetProvider : AppWidgetProvider() {
      * [MAX_BG_PX] on the long side, plus px per dp at that scale.
      */
     private fun bgSize(context: Context, mgr: AppWidgetManager, widgetId: Int): Triple<Int, Int, Float> {
-        var wDp = 0
-        var hDp = 0
-        try {
-            val opts = mgr.getAppWidgetOptions(widgetId)
-            val landscape = context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            wDp = opts.getInt(
-                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH else AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0
-            )
-            hDp = opts.getInt(
-                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT else AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0
-            )
-        } catch (_: Exception) {
-            // Fall through to the default size.
-        }
-        if (wDp <= 0 || hDp <= 0) {
-            wDp = 250 // widget_info minWidth x minHeight
-            hDp = 110
-        }
+        val (wDp, hDp) = sizeDp(context, mgr, widgetId)
         val density = context.resources.displayMetrics.density
         val pxPerDp = density * minOf(1f, MAX_BG_PX / (max(wDp, hDp) * density))
         return Triple(
@@ -306,24 +314,84 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             strokePx = pxPerDp.coerceAtLeast(1f), useCache = true
         )
         views.setImageViewBitmap(R.id.widget_bg, bg)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Clip (and launcher open/close animations) follow the card's own corners.
+            views.setViewOutlinePreferredRadius(
+                android.R.id.background,
+                WidgetInstance.getCorners(context, widgetId).toFloat(),
+                TypedValue.COMPLEX_UNIT_DIP
+            )
+        }
         views.setTextColor(R.id.widget_total, currentTheme(context, widgetId).accent)
-        applyTextSize(context, widgetId, views)
+        applyTextSize(context, views)
         bindTaps(context, views, widgetId, Prefs.getUsername(context))
         return views
     }
 
-    /** Widget text scales with the Studio text-size setting. */
-    private fun applyTextSize(context: Context, widgetId: Int, views: RemoteViews) {
+    /** Widget text scales with the Studio text-size setting (base sizes match widget_text.xml). */
+    private fun applyTextSize(context: Context, views: RemoteViews) {
         // Studio text size is global; per-widget looks predate it.
-        val s = Studio.textScale(Studio.getTextSize(context)) * Fonts.selected(context).scale
-        views.setTextViewTextSize(R.id.widget_title, android.util.TypedValue.COMPLEX_UNIT_SP, 14f * s)
-        views.setTextViewTextSize(R.id.widget_subtitle, android.util.TypedValue.COMPLEX_UNIT_SP, 11f * s)
-        views.setTextViewTextSize(R.id.widget_total, android.util.TypedValue.COMPLEX_UNIT_SP, 20f * s)
-        views.setTextViewTextSize(R.id.widget_updated, android.util.TypedValue.COMPLEX_UNIT_SP, 10f * s)
+        val s = textScale(context)
+        views.setTextViewTextSize(R.id.widget_title, TypedValue.COMPLEX_UNIT_SP, 15f * s)
+        views.setTextViewTextSize(R.id.widget_subtitle, TypedValue.COMPLEX_UNIT_SP, 12f * s)
+        views.setTextViewTextSize(R.id.widget_total, TypedValue.COMPLEX_UNIT_SP, 22f * s)
+        views.setTextViewTextSize(R.id.widget_updated, TypedValue.COMPLEX_UNIT_SP, 11f * s)
     }
 
-    private fun formatTotal(total: Int): String =
-        NumberFormat.getInstance(Locale.US).format(total)
+    private fun contentOptions(context: Context, widgetId: Int) = WidgetCopy.Options(
+        showTotal = WidgetInstance.showTotal(context, widgetId),
+        showStreak = WidgetInstance.showStreak(context, widgetId),
+        showLongest = WidgetInstance.showLongest(context, widgetId),
+        showUpdated = WidgetInstance.showUpdated(context, widgetId),
+        showActive = Studio.showActiveDays(context),
+        customLabel = Studio.getCustomLabel(context)
+    )
+
+    /** Shows [text] in [id], or hides the view when it is null. */
+    private fun setOptionalText(views: RemoteViews, id: Int, text: String?) {
+        if (text == null) {
+            views.setViewVisibility(id, View.GONE)
+        } else {
+            views.setViewVisibility(id, View.VISIBLE)
+            views.setTextViewText(id, text)
+        }
+    }
+
+    /**
+     * Header-only state (no data yet, setup, errors): [title] and [subtitle] over an
+     * empty skeleton graph in the theme's level-0 color, so the card keeps its shape.
+     */
+    private fun paintPlaceholder(
+        context: Context,
+        widgetId: Int,
+        views: RemoteViews,
+        size: WidgetCopy.Fit,
+        title: String,
+        subtitle: String
+    ) {
+        views.setTextViewText(R.id.widget_title, title)
+        setOptionalText(views, R.id.widget_subtitle, subtitle)
+        views.setViewVisibility(R.id.widget_total, View.GONE)
+        views.setViewVisibility(R.id.widget_updated, View.GONE)
+        val weeks = minOf(WidgetPrefs.rangeWeeks(WidgetInstance.getRange(context, widgetId)), size.maxWeeks)
+        try {
+            views.setImageViewBitmap(
+                R.id.widget_graph,
+                GraphRenderer.render(
+                    WidgetCopy.skeletonDays(weeks),
+                    colors = Studio.effectiveLevels(context, currentTheme(context, widgetId)),
+                    maxWeeks = weeks,
+                    cornerRadius = WidgetPrefs.shapeRadiusFactor(WidgetInstance.getShape(context, widgetId)),
+                    gapScale = WidgetInstance.getSpacing(context, widgetId),
+                    cellScale = Studio.getCellSize(context)
+                )
+            )
+            views.setContentDescription(R.id.widget_graph, "$title. $subtitle")
+            views.setViewVisibility(R.id.widget_graph, View.VISIBLE)
+        } catch (_: Exception) {
+            views.setViewVisibility(R.id.widget_graph, View.GONE)
+        }
+    }
 
     private fun paintResult(
         context: Context,
@@ -331,8 +399,8 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         views: RemoteViews,
         result: ContributionsResult,
         stats: ContributionStats,
-        size: SizeClass,
-        footer: String
+        size: WidgetCopy.Fit,
+        status: String
     ) {
         val theme = currentTheme(context, widgetId)
         val style = WidgetInstance.getStyle(context, widgetId)
@@ -360,94 +428,22 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             typeface = Fonts.graphLabels(context)
         )
         if (tint != null && !tint.isRecycled) tint.recycle()
-        val today = result.days.lastOrNull()?.count ?: 0
-        val total = formatTotal(result.totalLastYear)
+        if (tint != null && !tint.isRecycled) tint.recycle()
+        val content = WidgetCopy.content(
+            style, result, stats, contentOptions(context, widgetId), size, status
+        )
 
         views.setTextViewText(R.id.widget_title, "@${result.username}")
         views.setImageViewBitmap(R.id.widget_graph, bitmap)
         views.setContentDescription(
             R.id.widget_graph,
-            "@${result.username}: $total contributions in the last year, " +
-                "${stats.currentStreak} day streak. Tap for activity details."
+            "@${result.username}: ${WidgetCopy.formatTotal(result.totalLastYear)} contributions " +
+                "in the last year, ${stats.currentStreak} day streak. Tap for activity details."
         )
         views.setViewVisibility(R.id.widget_graph, View.VISIBLE)
-
-        when (style) {
-            WidgetPrefs.STYLE_MINIMAL -> {
-                // Graph only.
-                views.setViewVisibility(R.id.widget_subtitle, View.GONE)
-                views.setViewVisibility(R.id.widget_total, View.GONE)
-                views.setViewVisibility(R.id.widget_updated, View.GONE)
-            }
-            WidgetPrefs.STYLE_TERMINAL -> {
-                // Count-first, no big number.
-                val parts = ArrayList<String>()
-                parts.add("$total contributions")
-                parts.add("today $today")
-                if (WidgetInstance.showStreak(context, widgetId)) parts.add("${stats.currentStreak}d streak")
-                if (WidgetInstance.showLongest(context, widgetId)) parts.add("${stats.longestStreak}d longest")
-                views.setViewVisibility(R.id.widget_subtitle, View.VISIBLE)
-                views.setTextViewText(R.id.widget_subtitle, parts.joinToString(" • "))
-                views.setViewVisibility(R.id.widget_total, View.GONE)
-                setFooter(views, size, context, widgetId, stats, footer)
-            }
-            else -> {
-                val parts = ArrayList<String>()
-                parts.add("Today: $today")
-                if (WidgetInstance.showStreak(context, widgetId)) parts.add("${stats.currentStreak}d streak")
-                if (WidgetInstance.showTotal(context, widgetId)) parts.add("$total/yr")
-                if (Studio.showActiveDays(context) && !size.shortSubtitle) {
-                    parts.add("${stats.activeDays} active")
-                }
-                views.setViewVisibility(R.id.widget_subtitle, View.VISIBLE)
-                views.setTextViewText(
-                    R.id.widget_subtitle,
-                    if (size.shortSubtitle && parts.size > 2) {
-                        "${parts[0]} • ${parts[1]}"
-                    } else {
-                        parts.joinToString(" • ")
-                    }
-                )
-                if (WidgetInstance.showTotal(context, widgetId)) {
-                    views.setViewVisibility(R.id.widget_total, View.VISIBLE)
-                    views.setTextViewText(R.id.widget_total, total)
-                } else {
-                    views.setViewVisibility(R.id.widget_total, View.GONE)
-                }
-                setFooter(views, size, context, widgetId, stats, footer)
-            }
-        }
-    }
-
-    private fun setFooter(
-        views: RemoteViews,
-        size: SizeClass,
-        context: Context,
-        widgetId: Int,
-        stats: ContributionStats,
-        footer: String
-    ) {
-        val show = WidgetInstance.showUpdated(context, widgetId) && size.showFooter
-        if (!show) {
-            views.setViewVisibility(R.id.widget_updated, View.GONE)
-            return
-        }
-        // A custom label takes over the footer line when set.
-        val label = Studio.getCustomLabel(context)
-        var text = footer
-        if (label.isNotEmpty()) {
-            text = label
-        } else if (WidgetInstance.showLongest(context, widgetId)) {
-            // Cache-only paints (resize, look change, fresh-cache refresh) have no
-            // "tap refresh icon" tail; append the streak instead of dropping it.
-            text = if (text.contains(" • tap refresh icon")) {
-                text.replace(" • tap refresh icon", " • ${stats.longestStreak}d longest • tap refresh icon")
-            } else {
-                "$text • ${stats.longestStreak}d longest"
-            }.replace("Last updated", "Updated")
-        }
-        views.setViewVisibility(R.id.widget_updated, View.VISIBLE)
-        views.setTextViewText(R.id.widget_updated, text)
+        setOptionalText(views, R.id.widget_subtitle, content.subtitle)
+        setOptionalText(views, R.id.widget_total, content.total)
+        setOptionalText(views, R.id.widget_updated, content.footer)
     }
 
     /**
@@ -465,21 +461,26 @@ class ContributionWidgetProvider : AppWidgetProvider() {
     ) {
         val views = baseViews(context, mgr, widgetId)
         val username = snap.username
+        val size = sizeClass(context, mgr, widgetId)
+        if (refreshing) {
+            // Dimmed icon while the manual refresh runs.
+            views.setInt(R.id.widget_refresh, "setImageAlpha", 90)
+        }
 
         if (username.isBlank()) {
-            views.setTextViewText(R.id.widget_title, "Tap to open GH-widgets")
-            views.setTextViewText(R.id.widget_subtitle, "Enter your GitHub username")
-            views.setViewVisibility(R.id.widget_subtitle, View.VISIBLE)
-            views.setViewVisibility(R.id.widget_graph, View.GONE)
-            views.setViewVisibility(R.id.widget_total, View.GONE)
-            views.setViewVisibility(R.id.widget_updated, View.GONE)
+            paintPlaceholder(
+                context, widgetId, views, size,
+                "Set up GH-widgets", "Tap to add your GitHub username"
+            )
             mgr.updateAppWidget(widgetId, views)
             return
         }
 
         if (outcome == Refresher.Outcome.NOT_FOUND) {
-            views.setTextViewText(R.id.widget_title, "@$username")
-            views.setTextViewText(R.id.widget_subtitle, "User not found — tap to fix")
+            paintPlaceholder(context, widgetId, views, size, "@$username", "User not found · tap to fix")
+            // "Tap to fix" opens this widget's setup, where the username is edited.
+            views.setOnClickPendingIntent(R.id.widget_header, configPi(context, widgetId))
+            views.setOnClickPendingIntent(android.R.id.background, configPi(context, widgetId))
             mgr.updateAppWidget(widgetId, views)
             return
         }
@@ -487,30 +488,18 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         val result = snap.result
         val stats = snap.stats
         if (result != null && stats != null) {
-            val ago = TimeAgo.format(snap.fetchedAt)
-            val footer = when (outcome) {
-                Refresher.Outcome.UPDATED, Refresher.Outcome.UNCHANGED ->
-                    "Updated $ago • tap refresh icon to refresh"
-                Refresher.Outcome.OFFLINE, Refresher.Outcome.FAILED ->
-                    // Offline or server trouble: keep the cache and note its age.
-                    "Last updated $ago • tap refresh icon to retry"
-                else -> "Last updated $ago"
-            }
-            paintResult(context, widgetId, views, result, stats, sizeClass(mgr, widgetId), footer)
+            // Offline or server trouble: keep the cache and note its age.
+            val offline = outcome == Refresher.Outcome.OFFLINE || outcome == Refresher.Outcome.FAILED
+            val status = WidgetCopy.status(TimeAgo.format(snap.fetchedAt), offline)
+            paintResult(context, widgetId, views, result, stats, size, status)
             if (refreshing) {
                 views.setViewVisibility(R.id.widget_subtitle, View.VISIBLE)
                 views.setTextViewText(R.id.widget_subtitle, "Refreshing…")
             }
         } else if (outcome == Refresher.Outcome.OFFLINE || outcome == Refresher.Outcome.FAILED) {
-            views.setTextViewText(R.id.widget_title, "@$username")
-            views.setTextViewText(R.id.widget_subtitle, "No connection — tap refresh icon to retry")
+            paintPlaceholder(context, widgetId, views, size, "@$username", "No connection · tap refresh to retry")
         } else {
-            views.setTextViewText(R.id.widget_title, "@$username")
-            views.setTextViewText(R.id.widget_subtitle, "Loading contributions…")
-            views.setViewVisibility(R.id.widget_subtitle, View.VISIBLE)
-            views.setViewVisibility(R.id.widget_graph, View.GONE)
-            views.setViewVisibility(R.id.widget_total, View.GONE)
-            views.setViewVisibility(R.id.widget_updated, View.GONE)
+            paintPlaceholder(context, widgetId, views, size, "@$username", "Loading contributions…")
         }
         mgr.updateAppWidget(widgetId, views)
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for the homescreen widget, its picker preview and the widget setup screen. -->
+<resources>
+    <!-- Widget (initial layout before the first paint) -->
+    <string name="widget_placeholder_title">GitHub contributions</string>
+    <string name="widget_placeholder_subtitle">Loading…</string>
+    <string name="widget_graph_desc">Contribution graph</string>
+    <string name="widget_refresh_desc">Refresh contributions</string>
+
+    <!-- Picker preview (widget_preview.xml): sample data, not a real account -->
+    <string name="widget_preview_title">\@you</string>
+    <string name="widget_preview_subtitle">Today: 6 • 16d streak</string>
+    <string name="widget_preview_total">1,234</string>
+    <string name="widget_preview_footer">Updated just now</string>
+    <string name="widget_preview_desc">Sample contribution graph</string>
+
+    <!-- Widget setup screen -->
+    <string name="cfg_eyebrow">WIDGET SETUP</string>
+    <string name="cfg_title">This widget, your style</string>
+    <string name="cfg_subtitle">Applies to this widget only. The app keeps the defaults for new widgets.</string>
+    <string name="cfg_username_label">GitHub username</string>
+    <string name="cfg_username_helper">Public profile only. No sign-in needed.</string>
+    <string name="cfg_username_error">Enter a GitHub username</string>
+    <string name="cfg_theme">Theme</string>
+    <string name="cfg_style">Widget style</string>
+    <string name="cfg_range">Graph range</string>
+    <string name="cfg_range_3m">3 months</string>
+    <string name="cfg_range_6m">6 months</string>
+    <string name="cfg_range_12m">1 year</string>
+    <string name="cfg_opacity">Background opacity</string>
+    <string name="cfg_show">Show on widget</string>
+    <string name="cfg_show_total">Contribution count</string>
+    <string name="cfg_show_streak">Current streak</string>
+    <string name="cfg_show_longest">Longest streak</string>
+    <string name="cfg_show_updated">Last updated time</string>
+    <string name="cfg_cancel">Cancel</string>
+    <string name="cfg_add">Add widget</string>
+    <string name="cfg_save">Save changes</string>
+    <string name="cfg_saved">Widget saved</string>
+</resources>

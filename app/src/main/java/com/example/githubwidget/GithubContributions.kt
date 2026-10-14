@@ -190,13 +190,16 @@ object GraphRenderer {
                 textSize = 9f * scale
             }
             if (typeface != null) labelPaint.typeface = typeface
-            var prevMonth = -1
+            // (column, month) where each month starts in view.
+            val starts = ArrayList<Pair<Int, Int>>()
             shownMonths.forEachIndexed { col, month ->
-                if (month != prevMonth) {
-                    val x = pad + col * (cell + gap)
-                    canvas.drawText(MONTHS[month], x, pad + labelStrip - (3f * scale), labelPaint)
-                    prevMonth = month
-                }
+                if (starts.isEmpty() || starts.last().second != month) starts.add(col to month)
+            }
+            starts.forEachIndexed { i, (col, month) ->
+                // A partial first month would print over the next label ("FebMar"): skip it.
+                if (i == 0 && starts.size > 1 && starts[1].first - col < 3) return@forEachIndexed
+                val x = pad + col * (cell + gap)
+                canvas.drawText(MONTHS[month], x, pad + labelStrip - (3f * scale), labelPaint)
             }
         }
 
