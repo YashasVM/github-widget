@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Font variant (dm_serif_display) of widget_contribution.xml.
+    All seven variants share ids, structure and styles (res/values/widget_text.xml);
+    only android:fontFamily (and bold for single-weight faces) differs. Keep them in sync.
+    The root is @android:id/background so Android 12+ launchers clip and animate it.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    style="@style/WidgetRoot">
+
+    <!-- Card background is a bitmap so opacity never fades the text. -->
+    <ImageView
+        android:id="@+id/widget_bg"
+        style="@style/WidgetBg" />
+
+    <LinearLayout style="@style/WidgetContent">
+
+        <LinearLayout style="@style/WidgetHeaderRow">
+
+            <LinearLayout
+                android:id="@+id/widget_header"
+                style="@style/WidgetHeaderText">
+
+                <TextView
+                    android:id="@+id/widget_title"
+                    style="@style/WidgetText.Title"
+                    android:fontFamily="@font/dm_serif_display"
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:id="@+id/widget_subtitle"
+                    style="@style/WidgetText.Subtitle"
+                    android:fontFamily="@font/dm_serif_display" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/widget_total"
+                style="@style/WidgetText.Total"
+                android:fontFamily="@font/dm_serif_display"
+                android:textStyle="normal" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/widget_graph"
+            style="@style/WidgetGraph" />
+
+        <TextView
+            android:id="@+id/widget_updated"
+            style="@style/WidgetText.Updated"
+            android:fontFamily="@font/dm_serif_display" />
+    </LinearLayout>
+
+    <!-- Last child, so its 48dp corner target sits above everything else. -->
+    <ImageView
+        android:id="@+id/widget_refresh"
+        style="@style/WidgetRefresh" />
+</FrameLayout>

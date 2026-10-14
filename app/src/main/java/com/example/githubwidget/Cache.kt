@@ -17,8 +17,18 @@ object Cache {
     private const val NAME = "gh_widget_cache"
     private const val KEY_DATA = "data_json"
     private const val KEY_TIME = "fetched_at"
+    private const val KEY_ETAG = "etag"
 
-    fun save(context: android.content.Context, result: ContributionsResult) {
+    /** Last parsed dataset, reused while the stored JSON is unchanged. */
+    private class Memo(val raw: String, val result: ContributionsResult)
+
+    @Volatile
+    private var memo: Memo? = null
+
+    private fun prefs(context: android.content.Context) =
+        context.getSharedPreferences(NAME, android.content.Context.MODE_PRIVATE)
+
+    fun save(context: android.content.Context, result: ContributionsResult, etag: String? = null) {
         val days = JSONArray()
         for (d in result.days) {
             days.put(
@@ -32,17 +42,42 @@ object Cache {
             .put("username", result.username)
             .put("total", result.totalLastYear)
             .put("days", days)
-        context.getSharedPreferences(NAME, android.content.Context.MODE_PRIVATE)
+        val raw = root.toString()
+        val edit = prefs(context)
             .edit()
-            .putString(KEY_DATA, root.toString())
+            .putString(KEY_DATA, raw)
             .putLong(KEY_TIME, System.currentTimeMillis())
-            .apply()
+        if (etag.isNullOrEmpty()) edit.remove(KEY_ETAG) else edit.putString(KEY_ETAG, etag)
+        edit.apply()
+        memo = Memo(raw, result)
+    }
+
+    /** Server said "unchanged" (HTTP 304): only the check time moves. */
+    fun touch(context: android.content.Context, etag: String?) {
+        val edit = prefs(context).edit().putLong(KEY_TIME, System.currentTimeMillis())
+        if (!etag.isNullOrEmpty()) edit.putString(KEY_ETAG, etag)
+        edit.apply()
+    }
+
+    /** When the cache was last confirmed against the server (0 = never). Cheap: no JSON parse. */
+    fun fetchedAt(context: android.content.Context): Long = prefs(context).getLong(KEY_TIME, 0L)
+
+    /** ETag of the cached response, only when it belongs to [username]. */
+    fun etagFor(context: android.content.Context, username: String): String? {
+        val p = prefs(context)
+        val etag = p.getString(KEY_ETAG, null) ?: return null
+        val cached = load(context) ?: return null
+        return if (cached.first.username.equals(username, ignoreCase = true)) etag else null
     }
 
     /** Returns the cached dataset + fetch timestamp, or null if nothing cached. */
     fun load(context: android.content.Context): Pair<ContributionsResult, Long>? {
-        val prefs = context.getSharedPreferences(NAME, android.content.Context.MODE_PRIVATE)
+        val prefs = prefs(context)
         val raw = prefs.getString(KEY_DATA, null) ?: return null
+        val ts = prefs.getLong(KEY_TIME, 0L)
+        memo?.let { m ->
+            if (m.raw === raw || m.raw == raw) return m.result to ts
+        }
         return try {
             val root = JSONObject(raw)
             val arr = root.getJSONArray("days")
@@ -56,7 +91,8 @@ object Cache {
                 root.optInt("total", 0),
                 days
             )
-            result to prefs.getLong(KEY_TIME, 0L)
+            memo = Memo(raw, result)
+            result to ts
         } catch (_: Exception) {
             null
         }

@@ -1,987 +1,1271 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Home + Studio.
+    AppBarLayout = [header, account card, actions] (scroll away) then
+    [live preview, error banner, tabs] (pinned), so every Studio change is made
+    with the preview in view. The NestedScrollView below holds one section per tab.
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#010409"
-    android:fillViewport="true">
+    android:background="@color/gh_bg">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GH://HOME"
-        android:textColor="#3FB950"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <TextView
-        android:id="@+id/home_user"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="GH-widgets"
-        android:textColor="#F0F6FC"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/home_updated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text=""
-        android:textColor="#8B949E"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <!-- Username -->
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/home_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:background="@color/gh_bg"
+        android:stateListAnimator="@null"
+        app:liftOnScroll="false">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:hint="GitHub username"
-            app:boxBackgroundColor="#0D1117"
-            app:boxStrokeColor="#30363D"
-            app:hintTextColor="#8B949E">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/home_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:minHeight="52dp"
-                android:singleLine="true"
-                android:textColor="#F0F6FC"
-                android:textColorHint="#8B949E" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_save"
-            android:layout_width="wrap_content"
-            android:layout_height="52dp"
-            android:text="Save"
-            android:textSize="13sp"
-            app:backgroundTint="#2EA043"
-            app:cornerRadius="12dp" />
-    </LinearLayout>
-
-    <!-- Live widget preview -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/st_preview_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="16dp"
-        app:strokeColor="#30363D"
-        app:strokeWidth="1dp">
-
-        <FrameLayout
+        <!-- ===== Scrolls away: identity, account, actions ===== -->
+        <LinearLayout
+            android:id="@+id/home_header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/st_preview_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/gh_gutter"
+            android:paddingTop="@dimen/gh_space_s"
+            android:paddingEnd="@dimen/gh_space_s"
+            app:layout_scrollFlags="scroll">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/gh_space_s"
+                    android:paddingBottom="@dimen/gh_space_s">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Eyebrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GH://HOME" />
+
+                    <TextView
+                        android:id="@+id/home_user"
+                        style="@style/Widget.GH.Text.Display"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_xs"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="GH-widgets" />
+
+                    <TextView
+                        android:id="@+id/home_updated"
+                        style="@style/Widget.GH.Text.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/home_refresh"
+                    style="@style/Widget.GH.Button.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Refresh"
+                    app:icon="@drawable/ic_ui_refresh_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/home_switch"
+                    style="@style/Widget.GH.Button.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Switch user"
+                    app:icon="@drawable/ic_ui_person_24" />
+            </LinearLayout>
+
+            <!-- Onboarding (no username yet) and "Switch user" -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/home_account_card"
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_s"
+                android:layout_marginEnd="@dimen/gh_space_s"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/gh_space_l">
+
+                    <ImageView
+                        android:id="@+id/home_sample_graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/gh_space_l"
+                        android:adjustViewBounds="true"
+                        android:importantForAccessibility="no"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:id="@+id/home_account_title"
+                        style="@style/Widget.GH.Text.Headline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Your GitHub graph, on your homescreen" />
+
+                    <TextView
+                        android:id="@+id/home_account_body"
+                        style="@style/Widget.GH.Text.Body.Muted"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_s"
+                        android:text="Enter your GitHub username. Only public contributions are read: no sign-in, no token." />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/home_username_layout"
+                        style="@style/Widget.GH.TextInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_l"
+                        android:hint="GitHub username"
+                        app:prefixText="\@">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/home_username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="username"
+                            android:imeOptions="actionDone"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:maxLength="39"
+                            android:minHeight="56dp"
+                            android:singleLine="true"
+                            android:textColor="@color/gh_text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_m"
+                        android:gravity="center_vertical|end"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/home_account_cancel"
+                            style="@style/Widget.GH.Button.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/gh_space_s"
+                            android:text="Cancel"
+                            android:textColor="@color/gh_text"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/home_save"
+                            style="@style/Widget.GH.Button.Primary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Load my graph"
+                            app:icon="@drawable/ic_ui_arrow_forward_24"
+                            app:iconGravity="textEnd" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Go row + the one primary CTA -->
+            <LinearLayout
+                android:id="@+id/home_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_s"
+                android:layout_marginEnd="@dimen/gh_space_s"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/home_activity"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:paddingLeft="@dimen/gh_space_xs"
+                        android:paddingTop="@dimen/gh_space_s"
+                        android:paddingRight="@dimen/gh_space_xs"
+                        android:paddingBottom="@dimen/gh_space_s"
+                        app:autoSizeMaxTextSize="28sp"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeTextType="uniform"
+                        android:text="Activity"
+                        app:icon="@drawable/ic_ui_insights_24"
+                        app:iconGravity="top"
+                        app:iconPadding="2dp"
+                        app:iconSize="20dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/home_share"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/gh_space_xs"
+                        android:layout_marginEnd="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:paddingLeft="@dimen/gh_space_xs"
+                        android:paddingTop="@dimen/gh_space_s"
+                        android:paddingRight="@dimen/gh_space_xs"
+                        android:paddingBottom="@dimen/gh_space_s"
+                        app:autoSizeMaxTextSize="28sp"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeTextType="uniform"
+                        android:text="Share"
+                        app:icon="@drawable/ic_ui_share_24"
+                        app:iconGravity="top"
+                        app:iconPadding="2dp"
+                        app:iconSize="20dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/home_settings"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:paddingLeft="@dimen/gh_space_xs"
+                        android:paddingTop="@dimen/gh_space_s"
+                        android:paddingRight="@dimen/gh_space_xs"
+                        android:paddingBottom="@dimen/gh_space_s"
+                        app:autoSizeMaxTextSize="28sp"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeTextType="uniform"
+                        android:text="Settings"
+                        app:icon="@drawable/ic_ui_settings_24"
+                        app:iconGravity="top"
+                        app:iconPadding="2dp"
+                        app:iconSize="20dp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/home_add_widget"
+                    style="@style/Widget.GH.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    android:text="Add widget to homescreen"
+                    app:icon="@drawable/ic_ui_add_24"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== Pinned: live preview + section tabs ===== -->
+        <LinearLayout
+            android:id="@+id/home_pinned"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/gh_bg"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/st_preview_card"
+                style="@style/Widget.GH.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/gh_gutter"
+                android:layout_marginTop="@dimen/gh_space_l"
+                android:layout_marginEnd="@dimen/gh_gutter"
+                android:contentDescription="Live widget preview">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/st_preview_bg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:importantForAccessibility="no"
+                        android:scaleType="fitXY"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gh_space_l">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <!-- Preview text mirrors the widget: font/size set at runtime -->
+                                <TextView
+                                    android:id="@+id/st_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
+                                    android:text="@user"
+                                    android:textColor="@color/gh_text"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/st_subtitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Loading…"
+                                    android:textColor="@color/gh_text_muted"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/st_total"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/gh_space_s"
+                                android:fontFeatureSettings="tnum"
+                                android:text="–"
+                                android:textColor="@color/gh_accent"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/st_graph"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/gh_space_s"
+                            android:adjustViewBounds="true"
+                            android:maxHeight="128dp"
+                            android:minHeight="64dp"
+                            android:scaleType="fitCenter" />
+
+                        <TextView
+                            android:id="@+id/st_footer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/gh_space_xs"
+                            android:textColor="@color/gh_text_muted"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/st_progress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:contentDescription="Loading contributions"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Inline error with Retry -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/st_error"
+                style="@style/Widget.GH.Card.Error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/gh_gutter"
+                android:layout_marginTop="@dimen/gh_space_s"
+                android:layout_marginEnd="@dimen/gh_gutter"
+                android:accessibilityLiveRegion="polite"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/gh_space_m"
+                    android:paddingEnd="@dimen/gh_space_xs">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_ui_error_24"
+                        app:tint="@color/gh_danger" />
+
+                    <TextView
+                        android:id="@+id/st_error_text"
+                        style="@style/Widget.GH.Text.Body"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/gh_space_m"
+                        android:layout_weight="1"
+                        android:paddingTop="@dimen/gh_space_s"
+                        android:paddingBottom="@dimen/gh_space_s"
+                        android:textColor="@color/gh_on_danger_container" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/st_error_retry"
+                        style="@style/Widget.GH.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Retry"
+                        android:textColor="@color/gh_on_danger_container" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/st_tabs"
+                style="@style/Widget.GH.TabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gh_space_s"
+                android:paddingStart="@dimen/gh_space_s"
+                android:paddingEnd="@dimen/gh_space_s"
+                app:tabGravity="start"
+                app:tabMode="scrollable">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Presets" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Colors" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Graph" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Background" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Text" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gh_outline_variant" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- ===== Studio sections (one visible at a time) ===== -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/home_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/gh_space_xxl"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:id="@+id/st_sections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/gh_gutter"
+            android:paddingEnd="@dimen/gh_gutter">
+
+            <!-- ================= Presets ================= -->
+            <LinearLayout
+                android:id="@+id/sec_presets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:text="Presets" />
+
+                <TextView
+                    style="@style/Widget.GH.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="One tap sets theme, style, graph and card." />
+
+                <LinearLayout
+                    android:id="@+id/st_presets"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:orientation="vertical" />
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:text="Widget style" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/st_styles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:chipSpacingHorizontal="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:text="Your look" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
                     android:orientation="horizontal">
 
-                    <LinearLayout
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/st_export"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:text="Share look"
+                        app:icon="@drawable/ic_ui_upload_24"
+                        app:iconGravity="textStart"
+                        app:iconSize="18dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/st_import"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:text="Import look"
+                        app:icon="@drawable/ic_ui_download_24"
+                        app:iconGravity="textStart"
+                        app:iconSize="18dp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/st_reset"
+                    style="@style/Widget.GH.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    android:text="Reset look"
+                    app:icon="@drawable/ic_ui_restart_24"
+                    app:iconGravity="textStart"
+                    app:iconSize="18dp" />
+            </LinearLayout>
+
+            <!-- ================= Colors ================= -->
+            <LinearLayout
+                android:id="@+id/sec_colors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Section"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:text="Theme" />
+
+                    <TextView
+                        android:id="@+id/st_theme_name"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gh_text_muted"
+                        android:text="Matrix" />
+                </LinearLayout>
+
+                <!-- Bleeds to the screen edges; tiles keep the 16dp gutter at rest -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="-16dp"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    android:layout_marginEnd="-16dp"
+                    android:clipToPadding="false"
+                    android:paddingStart="@dimen/gh_gutter"
+                    android:paddingEnd="@dimen/gh_space_s"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/st_themes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:text="Contribution palette" />
+
+                <TextView
+                    style="@style/Widget.GH.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tap a level to pick its color." />
+
+                <LinearLayout
+                    android:id="@+id/st_levels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/st_palette_generate"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:text="From theme color" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/st_palette_reset"
+                        style="@style/Widget.GH.Button.Tonal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/gh_space_xs"
+                        android:layout_weight="1"
+                        android:text="Follow theme" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ================= Graph ================= -->
+            <LinearLayout
+                android:id="@+id/sec_graph"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:text="Range" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/st_ranges"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:text="Cell shape" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/st_shapes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cell size" />
+
+                    <TextView
+                        android:id="@+id/st_cellsize_text"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100%" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/st_cellsize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Cell size"
+                    android:stepSize="0.05"
+                    android:value="1"
+                    android:valueFrom="0.8"
+                    android:valueTo="1.3" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cell spacing" />
+
+                    <TextView
+                        android:id="@+id/st_spacing_text"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Normal" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/st_spacing"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Cell spacing"
+                    android:stepSize="0.5"
+                    android:value="1"
+                    android:valueFrom="0.5"
+                    android:valueTo="1.5" />
+            </LinearLayout>
+
+            <!-- ================= Background ================= -->
+            <LinearLayout
+                android:id="@+id/sec_background"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:text="Card background" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/st_bgtypes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+
+                <LinearLayout
+                    android:id="@+id/st_solid_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Body"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Color" />
+
+                    <TextView
+                        android:id="@+id/st_bgcolor_hex"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/gh_space_m"
+                        android:importantForAccessibility="no"
+                        android:textColor="@color/gh_text_muted" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/st_bgcolor"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Background color"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:text=""
+                        app:backgroundTint="@color/gh_surface"
+                        app:cornerRadius="24dp"
+                        app:strokeColor="@color/gh_outline"
+                        app:strokeWidth="1dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/st_gradient_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/st_title"
-                            android:layout_width="wrap_content"
+                            style="@style/Widget.GH.Text.Body"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="@user"
-                            android:textColor="#F0F6FC"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:layout_weight="1"
+                            android:text="Gradient colors" />
 
-                        <TextView
-                            android:id="@+id/st_subtitle"
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/st_grad_1"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="@dimen/gh_space_s"
+                            android:contentDescription="Gradient first color"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:text=""
+                            app:backgroundTint="@color/gh_surface"
+                            app:cornerRadius="24dp"
+                            app:strokeColor="@color/gh_outline"
+                            app:strokeWidth="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/st_grad_2"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="@dimen/gh_space_s"
+                            android:contentDescription="Gradient second color"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:text=""
+                            app:backgroundTint="#1F6FEB"
+                            app:cornerRadius="24dp"
+                            app:strokeColor="@color/gh_outline"
+                            app:strokeWidth="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/st_grad_3"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:contentDescription="Gradient third color"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:text=""
+                            app:backgroundTint="#A371F7"
+                            app:cornerRadius="24dp"
+                            app:strokeColor="@color/gh_outline"
+                            app:strokeWidth="1dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/st_grad_third"
+                        style="@style/Widget.GH.CheckBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_xs"
+                        android:text="Three colors" />
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/st_grad_radial"
+                        style="@style/Widget.GH.CheckBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Radial" />
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_s"
+                        android:text="Angle" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/st_angles"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_s"
+                        app:selectionRequired="true"
+                        app:singleSelection="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/st_image_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/st_image_pick"
+                            style="@style/Widget.GH.Button.Tonal"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Loading…"
-                            android:textColor="#8B949E"
-                            android:textSize="12sp" />
+                            android:layout_marginEnd="@dimen/gh_space_xs"
+                            android:layout_weight="1"
+                            android:text="Choose image"
+                            app:icon="@drawable/ic_ui_image_24"
+                            app:iconGravity="textStart"
+                            app:iconSize="18dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/st_image_remove"
+                            style="@style/Widget.GH.Button.Tonal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/gh_space_xs"
+                            android:layout_weight="1"
+                            android:text="Remove" />
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/st_total"
+                        style="@style/Widget.GH.Text.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="–"
-                        android:textColor="#3FB950"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:typeface="monospace" />
+                        android:layout_marginTop="@dimen/gh_space_m"
+                        android:text="Fit" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/st_scales"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_s"
+                        app:selectionRequired="true"
+                        app:singleSelection="true" />
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/st_image_graph"
+                        style="@style/Widget.GH.CheckBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gh_space_xs"
+                        android:text="Image through graph cells" />
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/st_graph"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/st_draw"
+                    style="@style/Widget.GH.Button.Tonal"
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:layout_marginTop="8dp"
-                    android:adjustViewBounds="true"
-                    android:contentDescription="Widget preview graph"
-                    android:scaleType="fitCenter" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:text="Draw a background"
+                    app:icon="@drawable/ic_ui_brush_24"
+                    app:iconGravity="textStart"
+                    app:iconSize="18dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Background opacity" />
+
+                    <TextView
+                        android:id="@+id/st_bgopacity_text"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100%" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/st_bgopacity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Background opacity"
+                    android:stepSize="5"
+                    android:value="100"
+                    android:valueFrom="0"
+                    android:valueTo="100" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Blur" />
+
+                    <TextView
+                        android:id="@+id/st_blur_text"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Off" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/st_blur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Blur"
+                    android:stepSize="1"
+                    android:value="0"
+                    android:valueFrom="0"
+                    android:valueTo="25" />
 
                 <TextView
-                    android:id="@+id/st_footer"
+                    style="@style/Widget.GH.Text.Section"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="#8B949E"
-                    android:textSize="11sp" />
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:text="Overlay" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/st_overlays"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:chipSpacingHorizontal="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Overlay opacity" />
+
+                    <TextView
+                        android:id="@+id/st_overlayop_text"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0%" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/st_overlayop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Overlay opacity"
+                    android:stepSize="5"
+                    android:value="0"
+                    android:valueFrom="0"
+                    android:valueTo="80" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Widget.GH.Text.Section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Corner roundness" />
+
+                    <TextView
+                        android:id="@+id/st_corners_text"
+                        style="@style/Widget.GH.Text.Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="16dp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/st_corners"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Corner roundness"
+                    android:stepSize="2"
+                    android:value="16"
+                    android:valueFrom="0"
+                    android:valueTo="28" />
             </LinearLayout>
-        </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Go row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_activity"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Activity"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_share"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Share"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_settings"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Settings"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/home_add_widget"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="8dp"
-        android:text="Add widget to homescreen"
-        android:textSize="13sp"
-        app:backgroundTint="#2EA043"
-        app:cornerRadius="12dp" />
-
-    <!-- Appearance -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Appearance"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Theme"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:scrollbars="none">
-
-        <LinearLayout
-            android:id="@+id/st_themes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
-    </HorizontalScrollView>
-
-    <TextView
-        android:id="@+id/st_theme_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="Matrix"
-        android:textColor="#8B949E"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Widget style"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/st_styles"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <!-- Graph -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Graph"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Range"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/st_ranges"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Cell shape"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/st_shapes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Cell size"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/st_cellsize_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100%"
-            android:textColor="#F0F6FC"
-            android:textSize="12sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/st_cellsize"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="1"
-        android:valueFrom="0.8"
-        android:valueTo="1.3"
-        android:stepSize="0.05" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Cell spacing"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/st_spacing_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Normal"
-            android:textColor="#F0F6FC"
-            android:textSize="12sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/st_spacing"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="1"
-        android:valueFrom="0.5"
-        android:valueTo="1.5"
-        android:stepSize="0.5" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Contribution palette"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/st_levels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_palette_generate"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="From theme color"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_palette_reset"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Follow theme"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-    </LinearLayout>
-
-    <!-- Background -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Background"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/st_bgtypes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:id="@+id/st_solid_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Color"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_bgcolor"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:text=""
-            app:backgroundTint="#0D1117"
-            app:cornerRadius="26dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/st_gradient_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
+            <!-- ================= Text ================= -->
+            <LinearLayout
+                android:id="@+id/sec_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Gradient colors"
-                android:textColor="#8B949E"
-                android:textSize="12sp" />
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/st_grad_1"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:insetLeft="0dp"
-                android:insetRight="0dp"
-                android:text=""
-                app:backgroundTint="#0D1117"
-                app:cornerRadius="22dp" />
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_l"
+                    android:text="Show on widget" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/st_grad_2"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:insetLeft="0dp"
-                android:insetRight="0dp"
-                android:text=""
-                app:backgroundTint="#1F6FEB"
-                app:cornerRadius="22dp" />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/st_chk_total"
+                    style="@style/Widget.GH.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xs"
+                    android:text="Contribution count" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/st_grad_3"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:insetLeft="0dp"
-                android:insetRight="0dp"
-                android:text=""
-                app:backgroundTint="#A371F7"
-                app:cornerRadius="22dp" />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/st_chk_streak"
+                    style="@style/Widget.GH.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Current streak" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/st_chk_longest"
+                    style="@style/Widget.GH.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Longest streak" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/st_chk_updated"
+                    style="@style/Widget.GH.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Last updated" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/st_chk_active"
+                    style="@style/Widget.GH.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Active days" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/st_label_layout"
+                    style="@style/Widget.GH.TextInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_m"
+                    android:hint="Footer text"
+                    app:helperText="Replaces the &quot;updated&quot; line. Leave empty for the default.">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/st_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="text"
+                        android:minHeight="56dp"
+                        android:singleLine="true"
+                        android:textColor="@color/gh_text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:text="Text size" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/st_textsizes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+
+                <TextView
+                    style="@style/Widget.GH.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_xl"
+                    android:text="Font" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/st_fonts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gh_space_s"
+                    app:chipSpacingHorizontal="@dimen/gh_space_s"
+                    app:selectionRequired="true"
+                    app:singleSelection="true" />
+            </LinearLayout>
         </LinearLayout>
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/st_grad_third"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginTop="4dp"
-            android:text="Three colors"
-            android:textColor="#F0F6FC" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/st_grad_radial"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:text="Radial"
-            android:textColor="#F0F6FC" />
-
-        <LinearLayout
-            android:id="@+id/st_angles"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="horizontal" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/st_image_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/st_image_pick"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_marginEnd="4dp"
-                android:layout_weight="1"
-                android:text="Choose image"
-                android:textSize="12sp"
-                app:backgroundTint="#21262D"
-                app:cornerRadius="12dp"
-                app:strokeColor="#30363D"
-                app:strokeWidth="1dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/st_image_remove"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_marginStart="4dp"
-                android:layout_weight="1"
-                android:text="Remove"
-                android:textSize="12sp"
-                app:backgroundTint="#21262D"
-                app:cornerRadius="12dp"
-                app:strokeColor="#30363D"
-                app:strokeWidth="1dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/st_scales"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/st_image_graph"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginTop="4dp"
-            android:text="Image through graph cells"
-            android:textColor="#F0F6FC" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Background opacity"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/st_bgopacity_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100%"
-            android:textColor="#F0F6FC"
-            android:textSize="12sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/st_bgopacity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="100"
-        android:valueFrom="0"
-        android:valueTo="100"
-        android:stepSize="5" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Blur"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/st_blur_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Off"
-            android:textColor="#F0F6FC"
-            android:textSize="12sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/st_blur"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="0"
-        android:valueFrom="0"
-        android:valueTo="25"
-        android:stepSize="1" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Overlay"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/st_overlays"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Overlay opacity"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/st_overlayop_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0%"
-            android:textColor="#F0F6FC"
-            android:textSize="12sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/st_overlayop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="0"
-        android:valueFrom="0"
-        android:valueTo="80"
-        android:stepSize="5" />
-
-    <!-- Content -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Content"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/st_chk_total"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginTop="6dp"
-        android:text="Contribution count"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/st_chk_streak"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="Current streak"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/st_chk_longest"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="Longest streak"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/st_chk_updated"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="Last updated"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/st_chk_active"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="Active days"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="Custom label (replaces footer line)"
-        app:boxBackgroundColor="#0D1117"
-        app:boxStrokeColor="#30363D"
-        app:hintTextColor="#8B949E">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/st_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:minHeight="52dp"
-            android:singleLine="true"
-            android:textColor="#F0F6FC"
-            android:textColorHint="#8B949E" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Text size"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/st_textsizes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Corner roundness"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/st_corners_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="16dp"
-            android:textColor="#F0F6FC"
-            android:textSize="12sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/st_corners"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="16"
-        android:valueFrom="0"
-        android:valueTo="28"
-        android:stepSize="2" />
-
-    <!-- Presets -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Presets"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/st_presets"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_reset"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Reset look"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_draw"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Draw background"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-    </LinearLayout>
-
-    <!-- Look transfer -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Look transfer"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_export"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Share look"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/st_import"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Import look"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-    </LinearLayout>
-
-    <!-- Widget actions -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_refresh"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Refresh"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_switch"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Switch user"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp"
-            app:strokeColor="#30363D"
-            app:strokeWidth="1dp" />
-    </LinearLayout>
-
-</LinearLayout>
-</ScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

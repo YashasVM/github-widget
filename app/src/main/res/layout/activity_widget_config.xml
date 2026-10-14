@@ -1,195 +1,336 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Widget setup (WidgetConfigActivity): live preview on top, options below, and a
+    bottom action bar that stays put. Edge-to-edge: the activity pads cfg_content
+    (status bar) and cfg_bar (navigation bar / keyboard) from window insets.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cfg_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#010409"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GH://WIDGET SETUP"
-        android:textColor="#39D353"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="This widget, your style."
-        android:textColor="#F0F6FC"
-        android:textSize="22sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="Applies to this widget only. The app holds the defaults for new widgets."
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="GitHub username"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.textfield.TextInputLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/cfg_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="e.g. torvalds"
-        app:boxBackgroundColor="#0D1117"
-        app:boxStrokeColor="#30363D"
-        app:hintTextColor="#8B949E">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cfg_username"
+        <LinearLayout
+            android:id="@+id/cfg_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:singleLine="true"
-            android:textColor="#F0F6FC"
-            android:textColorHint="#8B949E" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Theme"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:importantForAccessibility="no"
+                android:text="@string/cfg_eyebrow"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:accessibilityHeading="true"
+                android:text="@string/cfg_title"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/cfg_subtitle"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <!-- ===== live preview: a wallpaper-ish stage with the widget on it ===== -->
+            <FrameLayout
+                android:id="@+id/cfg_stage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/cfg_preview_stage"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:id="@+id/cfg_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingStart="14dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/cfg_pv_title"
+                                style="@style/Cfg.PreviewText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/widget_preview_title"
+                                android:textColor="@color/widget_text"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/cfg_pv_subtitle"
+                                style="@style/Cfg.PreviewText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="@color/widget_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/cfg_pv_total"
+                            style="@style/Cfg.PreviewText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textColor="@color/widget_accent"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="12dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_widget_refresh"
+                            app:tint="@color/widget_text_secondary" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/cfg_pv_graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:importantForAccessibility="no"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:id="@+id/cfg_pv_footer"
+                        style="@style/Cfg.PreviewText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/widget_text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </FrameLayout>
+
+            <!-- ===== username ===== -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/cfg_username_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:hint="@string/cfg_username_label"
+                app:endIconMode="clear_text"
+                app:helperText="@string/cfg_username_helper"
+                app:prefixText="\@">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/cfg_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="text|textNoSuggestions|textVisiblePassword"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ===== theme: color swatch tiles ===== -->
+            <TextView
+                style="@style/Cfg.Section"
+                android:text="@string/cfg_theme" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-16dp"
+                android:layout_marginEnd="-16dp"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/cfg_themes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp" />
+            </HorizontalScrollView>
+
+            <!-- ===== style ===== -->
+            <TextView
+                style="@style/Cfg.Section"
+                android:text="@string/cfg_style" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cfg_styles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingVertical="0dp"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+
+            <!-- ===== range ===== -->
+            <TextView
+                style="@style/Cfg.Section"
+                android:text="@string/cfg_range" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/cfg_ranges"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cfg_range_3m"
+                    style="@style/Cfg.Segment"
+                    android:text="@string/cfg_range_3m" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cfg_range_6m"
+                    style="@style/Cfg.Segment"
+                    android:text="@string/cfg_range_6m" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cfg_range_12m"
+                    style="@style/Cfg.Segment"
+                    android:text="@string/cfg_range_12m" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- ===== opacity ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/cfg_opacity_label"
+                    style="@style/Cfg.Section"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:labelFor="@id/cfg_opacity"
+                    android:text="@string/cfg_opacity" />
+
+                <TextView
+                    android:id="@+id/cfg_opacity_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/cfg_opacity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/cfg_opacity"
+                android:stepSize="5"
+                android:value="100"
+                android:valueFrom="20"
+                android:valueTo="100"
+                app:tickVisible="false" />
+
+            <!-- ===== content toggles ===== -->
+            <TextView
+                style="@style/Cfg.Section"
+                android:layout_marginBottom="0dp"
+                android:text="@string/cfg_show" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cfg_total"
+                style="@style/Cfg.Check"
+                android:text="@string/cfg_show_total" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cfg_streak"
+                style="@style/Cfg.Check"
+                android:text="@string/cfg_show_streak" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cfg_longest"
+                style="@style/Cfg.Check"
+                android:text="@string/cfg_show_longest" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cfg_updated"
+                style="@style/Cfg.Check"
+                android:text="@string/cfg_show_updated" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ===== sticky action bar ===== -->
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
-        android:id="@+id/cfg_themes"
+        android:id="@+id/cfg_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
+        android:background="?attr/colorSurface"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Widget style"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/cfg_styles"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Graph range"
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <LinearLayout
-        android:id="@+id/cfg_ranges"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Transparency"
-            android:textColor="#8B949E"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/cfg_opacity_text"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cfg_cancel"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="100%"
-            android:textColor="#8B949E"
-            android:textSize="12sp"
-            android:typeface="monospace" />
+            android:minHeight="48dp"
+            android:text="@string/cfg_cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cfg_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:text="@string/cfg_add" />
     </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/cfg_opacity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="100"
-        android:valueFrom="20"
-        android:valueTo="100"
-        android:stepSize="5" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Widget information"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/cfg_total"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="Contribution count"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/cfg_streak"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current streak"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/cfg_longest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Longest streak"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/cfg_updated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Last updated"
-        android:textColor="#F0F6FC" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/cfg_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="20dp"
-        android:text="Save widget"
-        app:backgroundTint="#238636"
-        app:cornerRadius="12dp" />
-
 </LinearLayout>
-</ScrollView>

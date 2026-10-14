@@ -1,6 +1,5 @@
 package com.example.githubwidget
 
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -11,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * Spectrum-style color picker: a horizontal rainbow hue bar on top,
@@ -169,7 +169,7 @@ object ColorPickerDialog {
         box.addView(grid)
         refresh()
 
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle("Pick a graph color")
             .setView(box)
             .setPositiveButton("Use this color") { _, _ -> onPick(current()) }

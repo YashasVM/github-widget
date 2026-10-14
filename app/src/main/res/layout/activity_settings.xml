@@ -1,194 +1,526 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Settings: top bar with back, then grouped cards of list rows
+    (Account, Refresh, Look, Data, Privacy, About). Rows are whole-row tap targets
+    (min 56dp, wrap at large font scales). Destructive rows are red and confirm first.
+    Edge-to-edge: SettingsActivity pads set_appbar (status bar) and the root (nav bar).
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/set_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#010409"
-    android:fillViewport="true">
+    android:background="@color/gh_bg">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GH://SETTINGS"
-        android:textColor="#39D353"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Settings"
-        android:textColor="#F0F6FC"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Data"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/set_refresh"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/set_appbar"
+        style="@style/Widget.GH.AppBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Refresh now"
-        android:textSize="12sp"
-        app:backgroundTint="#21262D"
-        app:cornerRadius="12dp" />
+        android:layout_height="wrap_content">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/set_clear_cache"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/set_toolbar"
+            style="@style/Widget.GH.Toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="Settings" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/set_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Clear cached data"
-        android:textSize="12sp"
-        app:backgroundTint="#21262D"
-        app:cornerRadius="12dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Look"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:paddingStart="@dimen/gh_gutter"
+        android:paddingEnd="@dimen/gh_gutter"
+        android:paddingBottom="@dimen/gh_space_xl">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/set_export"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Share look"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp" />
+        <TextView
+            style="@style/Widget.GH.Text.Section.Group"
+            android:layout_marginTop="@dimen/gh_space_s"
+            android:text="Account" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/set_import"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Import look"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp" />
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.GH.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingBottom="@dimen/gh_space_xs">
+
+            <LinearLayout
+                android:id="@+id/set_account"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_person_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="GitHub username" />
+                    <TextView
+                        android:id="@+id/set_account_value"
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Not set" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_chevron_right_24" />
+            </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView
+            style="@style/Widget.GH.Text.Section.Group"
+            android:text="Refresh" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.GH.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingBottom="@dimen/gh_space_xs">
+
+            <LinearLayout
+                android:id="@+id/set_refresh"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_refresh_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Refresh now" />
+                    <TextView
+                        android:id="@+id/set_last_refreshed"
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Last refreshed: never" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_interval"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_schedule_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Background refresh" />
+                    <TextView
+                        android:id="@+id/set_interval_value"
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="every 6 hours" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_chevron_right_24" />
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_wifi_row"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_wifi_24" />
+
+                <LinearLayout
+                    style="@style/Widget.GH.ListRow.Texts"
+                    android:importantForAccessibility="noHideDescendants">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Wi-Fi only" />
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Background refreshes skip mobile data" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/set_wifi_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/gh_space_s"
+                    android:contentDescription="Wi-Fi only" />
+            </LinearLayout>
+            <TextView
+                style="@style/Widget.GH.Text.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="56dp"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingEnd="@dimen/gh_space_l"
+                android:paddingBottom="@dimen/gh_space_m"
+                android:text="Background refreshes wait for a connection and skip low battery, Battery Saver and Data Saver. The refresh icon on a widget always refreshes." />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView
+            style="@style/Widget.GH.Text.Section.Group"
+            android:text="Look" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.GH.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingBottom="@dimen/gh_space_xs">
+
+            <LinearLayout
+                android:id="@+id/set_export"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_share_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Share look" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Send your theme, style and graph settings as text" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_chevron_right_24" />
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_import"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_download_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Import look" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Paste a look someone shared" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_chevron_right_24" />
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_reset_look"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_restart_24"
+                    app:tint="@color/gh_danger" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:textColor="@color/gh_danger"
+                        android:text="Reset look" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Theme, style, background and graph back to defaults. Username and data are kept." />
+                </LinearLayout>
+            </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView
+            style="@style/Widget.GH.Text.Section.Group"
+            android:text="Data" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.GH.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingBottom="@dimen/gh_space_xs">
+
+            <LinearLayout
+                android:id="@+id/set_clear_cache"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_delete_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Clear cached data" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Removes the saved graph. Widgets reload on the next refresh." />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_reset_all"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_error_24"
+                    app:tint="@color/gh_danger" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:textColor="@color/gh_danger"
+                        android:text="Reset everything" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Username, look, per-widget setups and cached data. Drawings are kept." />
+                </LinearLayout>
+            </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView
+            style="@style/Widget.GH.Text.Section.Group"
+            android:text="Privacy" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.GH.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingBottom="@dimen/gh_space_xs">
+
+            <TextView
+                style="@style/Widget.GH.Text.Body.Muted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/gh_space_l"
+                android:text="GH-widgets stores your GitHub username, widget look and the last fetched contribution graph on this device only. When refreshing, the app sends your username to the public contribution API to fetch your graph: no sign-in, no token, no account access. Background images and drawings stay in the app's private storage. There is no telemetry and nothing is uploaded anywhere." />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView
+            style="@style/Widget.GH.Text.Section.Group"
+            android:text="About" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.GH.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/gh_space_xs"
+                android:paddingBottom="@dimen/gh_space_xs">
+
+            <LinearLayout
+                android:id="@+id/set_about"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_info_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="GH-widgets" />
+                    <TextView
+                        android:id="@+id/set_version"
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Version" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_font_licenses"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_insights_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Open-source fonts" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="SIL Open Font License 1.1" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_chevron_right_24" />
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_repo"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_open_in_new_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Repository" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="github.com/mrduhlol/github-widget" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_open_in_new_24" />
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerColor="@color/gh_outline_variant"
+                app:dividerInsetStart="56dp" />
+
+            <LinearLayout
+                android:id="@+id/set_issue"
+                style="@style/Widget.GH.ListRow">
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_error_24" />
+
+                <LinearLayout style="@style/Widget.GH.ListRow.Texts">
+
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Title"
+                        android:text="Report an issue" />
+                    <TextView
+                        style="@style/Widget.GH.ListRow.Summary"
+                        android:text="Opens a new GitHub issue" />
+                </LinearLayout>
+
+                <ImageView
+                    style="@style/Widget.GH.ListRow.Chevron"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ui_open_in_new_24" />
+            </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Reset"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/set_reset_look"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Reset look"
-        android:textSize="12sp"
-        app:backgroundTint="#21262D"
-        app:cornerRadius="12dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/set_reset_all"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Reset everything"
-        android:textSize="12sp"
-        app:backgroundTint="#5A1A1A"
-        app:cornerRadius="12dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Privacy"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="GH-widgets stores your GitHub username, widget look and the last fetched contribution graph on this device only. When refreshing, the app sends your username to the public contribution API to fetch your graph — no sign-in, no token, no account access. Background images and drawings stay in the app's private storage. There is no telemetry and nothing is uploaded anywhere."
-        android:textColor="#8B949E"
-        android:textSize="12sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="About"
-        android:textColor="#F0F6FC"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/set_version"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="GH-widgets"
-        android:textColor="#8B949E"
-        android:textSize="12sp"
-        android:typeface="monospace" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/set_repo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:text="Repository"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/set_issue"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Report issue"
-            android:textSize="12sp"
-            app:backgroundTint="#21262D"
-            app:cornerRadius="12dp" />
-    </LinearLayout>
-
-</LinearLayout>
-</ScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

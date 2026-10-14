@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -30,23 +31,57 @@ class UserNotFoundException(username: String) :
  */
 object GithubApi {
 
-    fun fetch(username: String): ContributionsResult {
+    /** One network answer: fresh data, or "unchanged since [etag]" (HTTP 304). */
+    class Response(val result: ContributionsResult?, val etag: String?) {
+        val notModified: Boolean get() = result == null
+    }
+
+    @Volatile
+    private var userAgent = "GH-widgets-android"
+
+    /** Identifies the app (and its version) to the API host. */
+    fun init(context: android.content.Context) {
+        if (userAgent != "GH-widgets-android") return
+        userAgent = try {
+            @Suppress("DEPRECATION")
+            val v = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+            "GH-widgets-android/$v (+https://github.com/mrduhlol/github-widget)"
+        } catch (_: Exception) {
+            "GH-widgets-android"
+        }
+    }
+
+    fun fetch(username: String): ContributionsResult =
+        fetchConditional(username, null).result ?: throw RuntimeException("Empty response")
+
+    /**
+     * Conditional GET: sends If-None-Match when [etag] is known, so an
+     * unchanged graph costs a tiny 304 instead of the full JSON. Gzip is
+     * negotiated transparently by HttpURLConnection.
+     */
+    fun fetchConditional(username: String, etag: String?, timeoutMs: Int = 15_000): Response {
         val clean = username.trim().trimStart('@')
         require(clean.isNotEmpty()) { "Username is empty" }
         val url = URL("https://github-contributions-api.jogruber.de/v4/$clean?y=last")
         val conn = (url.openConnection() as HttpURLConnection).apply {
-            connectTimeout = 15_000
-            readTimeout = 15_000
+            connectTimeout = timeoutMs
+            readTimeout = timeoutMs
             requestMethod = "GET"
-            setRequestProperty("User-Agent", "github-widget-android/1.0")
+            useCaches = false
+            setRequestProperty("User-Agent", userAgent)
+            setRequestProperty("Accept", "application/json")
+            if (!etag.isNullOrEmpty()) setRequestProperty("If-None-Match", etag)
         }
         try {
             val code = conn.responseCode
             if (code == 404) throw UserNotFoundException(clean)
+            if (code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                return Response(null, conn.getHeaderField("ETag") ?: etag)
+            }
             val stream = if (code in 200..299) conn.inputStream else conn.errorStream
-            val body = stream.bufferedReader().use { it.readText() }
+            val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
             if (code !in 200..299) throw RuntimeException("Server returned HTTP $code.")
-            return parse(clean, JSONObject(body))
+            return Response(parse(clean, JSONObject(body)), conn.getHeaderField("ETag"))
         } finally {
             conn.disconnect()
         }
@@ -83,6 +118,7 @@ object GraphRenderer {
      * @param cellScale scales cell size (graph size control)
      * @param tint optional background image sampled per cell for
      *   image-through-graph mode (tintAmount 0..0.6)
+     * @param typeface month-label typeface (null keeps the Paint default)
      */
     fun render(
         days: List<Day>,
@@ -95,7 +131,8 @@ object GraphRenderer {
         emptyBorder: Int = Color.parseColor("#30363D"),
         cellScale: Float = 1f,
         tint: Bitmap? = null,
-        tintAmount: Float = 0f
+        tintAmount: Float = 0f,
+        typeface: Typeface? = null
     ): Bitmap {
         if (days.isEmpty()) throw IllegalArgumentException("No days to render")
         val palette = colors ?: Themes.GREEN.levels
@@ -152,13 +189,17 @@ object GraphRenderer {
                 color = Color.parseColor("#8B949E")
                 textSize = 9f * scale
             }
-            var prevMonth = -1
+            if (typeface != null) labelPaint.typeface = typeface
+            // (column, month) where each month starts in view.
+            val starts = ArrayList<Pair<Int, Int>>()
             shownMonths.forEachIndexed { col, month ->
-                if (month != prevMonth) {
-                    val x = pad + col * (cell + gap)
-                    canvas.drawText(MONTHS[month], x, pad + labelStrip - (3f * scale), labelPaint)
-                    prevMonth = month
-                }
+                if (starts.isEmpty() || starts.last().second != month) starts.add(col to month)
+            }
+            starts.forEachIndexed { i, (col, month) ->
+                // A partial first month would print over the next label ("FebMar"): skip it.
+                if (i == 0 && starts.size > 1 && starts[1].first - col < 3) return@forEachIndexed
+                val x = pad + col * (cell + gap)
+                canvas.drawText(MONTHS[month], x, pad + labelStrip - (3f * scale), labelPaint)
             }
         }
 

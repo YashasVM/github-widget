@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Homescreen widget metrics. API 31+ overrides the radius in values-v31. -->
+<resources>
+    <!-- Corner radius of the static preview and the clip outline before the first paint. -->
+    <dimen name="widget_radius">16dp</dimen>
+    <dimen name="widget_padding_h">14dp</dimen>
+    <dimen name="widget_padding_v">12dp</dimen>
+    <dimen name="widget_graph_gap">6dp</dimen>
+    <dimen name="widget_touch_target">48dp</dimen>
+    <!-- (48dp target - 20dp icon) / 2 -->
+    <dimen name="widget_refresh_inset">14dp</dimen>
+    <!-- Room the header leaves for the refresh target: 48dp - padding_h. -->
+    <dimen name="widget_refresh_clearance">34dp</dimen>
+</resources>

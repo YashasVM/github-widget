@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Android 12+: clip the widget to its outline. The XML outline uses the system
+        widget radius; the provider overrides it per widget with the user's corner
+        setting (RemoteViews.setViewOutlinePreferredRadius), so clip and card agree.
+    -->
+    <style name="WidgetRoot" parent="WidgetRoot.Base">
+        <item name="android:clipToOutline">true</item>
+    </style>
+</resources>

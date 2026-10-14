@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Colors used only by the homescreen widget, its picker preview and the setup screen. -->
+<resources>
+    <color name="widget_surface">#0D1117</color>
+    <color name="widget_outline">#30363D</color>
+    <color name="widget_text">#F0F6FC</color>
+    <color name="widget_text_secondary">#8B949E</color>
+    <color name="widget_accent">#39D353</color>
+</resources>

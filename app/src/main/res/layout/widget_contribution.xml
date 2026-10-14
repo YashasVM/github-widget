@@ -1,91 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Default (system font) homescreen widget layout.
+    All seven variants share ids, structure and styles (res/values/widget_text.xml);
+    only android:fontFamily (and bold for single-weight faces) differs. Keep them in sync.
+    The root is @android:id/background so Android 12+ launchers clip and animate it.
+-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:id="@android:id/background"
+    style="@style/WidgetRoot">
 
     <!-- Card background is a bitmap so opacity never fades the text. -->
     <ImageView
         android:id="@+id/widget_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+        style="@style/WidgetBg" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+    <LinearLayout style="@style/WidgetContent">
 
-        <LinearLayout
-            android:id="@+id/widget_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        <LinearLayout style="@style/WidgetHeaderRow">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:id="@+id/widget_header"
+                style="@style/WidgetHeaderText">
 
                 <TextView
                     android:id="@+id/widget_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@user"
-                    android:textColor="#F0F6FC"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    style="@style/WidgetText.Title" />
 
                 <TextView
                     android:id="@+id/widget_subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Loading…"
-                    android:textColor="#8B949E"
-                    android:textSize="11sp" />
+                    style="@style/WidgetText.Subtitle" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/widget_total"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="–"
-                android:textColor="#39D353"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:typeface="monospace" />
-
-            <TextView
-                android:id="@+id/widget_refresh"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="Refresh widget"
-                android:gravity="center"
-                android:text="⟳"
-                android:textColor="#F0F6FC"
-                android:textSize="20sp" />
+                style="@style/WidgetText.Total"
+                android:fontFamily="sans-serif" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/widget_graph"
-            android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_marginTop="8dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="Contribution graph"
-            android:scaleType="fitCenter" />
+            style="@style/WidgetGraph" />
 
         <TextView
             android:id="@+id/widget_updated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Less                                      More"
-            android:textColor="#8B949E"
-            android:textSize="10sp" />
-
+            style="@style/WidgetText.Updated" />
     </LinearLayout>
+
+    <!-- Last child, so its 48dp corner target sits above everything else. -->
+    <ImageView
+        android:id="@+id/widget_refresh"
+        style="@style/WidgetRefresh" />
 </FrameLayout>

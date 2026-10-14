@@ -42,6 +42,9 @@ object Studio {
     private const val KEY_CUSTOM_LABEL = "custom_label"
     private const val KEY_SHOW_ACTIVE = "show_active"
 
+    /** Studio keys stored with putFloat (import must restore them as floats). */
+    private val FLOAT_KEYS = setOf(KEY_CELL_SIZE)
+
     private fun prefs(context: android.content.Context) =
         context.getSharedPreferences(NAME, android.content.Context.MODE_PRIVATE)
 
@@ -270,8 +273,12 @@ object Studio {
         return JSONObject().put("gh_widgets_look", 1).put("look", look).toString()
     }
 
-    /** Returns null on success, or a short error message. */
-    fun importLook(context: android.content.Context, json: String): String? {
+    /**
+     * Returns null on success, or a short error message. [replace] first drops
+     * every Studio key the look does not carry (used by Undo, so keys added by
+     * the change being undone, e.g. a generated palette, are removed again).
+     */
+    fun importLook(context: android.content.Context, json: String, replace: Boolean = false): String? {
         return try {
             val look = JSONObject(json).getJSONObject("look")
             Prefs.setThemeId(context, look.optString("theme", "green"))
@@ -290,17 +297,21 @@ object Studio {
                 look.optBoolean("showUpdated", true)
             )
             val e = prefs(context).edit()
+            if (replace) e.clear()
             val keys = look.keys()
             while (keys.hasNext()) {
                 val k = keys.next()
                 if (!k.startsWith("studio_")) continue
                 val name = k.removePrefix("studio_")
                 val v = look.get(k)
-                when (v) {
-                    is Int -> e.putInt(name, v)
-                    is Boolean -> e.putBoolean(name, v)
-                    is String -> e.putString(name, v)
-                    is Double -> e.putFloat(name, v.toFloat())
+                when {
+                    // Float prefs: org.json writes 1.0 as "1", which parses back as
+                    // an Int; storing that with putInt makes getFloat throw.
+                    name in FLOAT_KEYS && v is Number -> e.putFloat(name, v.toFloat())
+                    v is Int -> e.putInt(name, v)
+                    v is Boolean -> e.putBoolean(name, v)
+                    v is String -> e.putString(name, v)
+                    v is Double -> e.putFloat(name, v.toFloat())
                 }
             }
             e.apply()
