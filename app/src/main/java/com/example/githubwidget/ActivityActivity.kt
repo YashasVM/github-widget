@@ -398,7 +398,8 @@ class ActivityActivity : AppCompatActivity() {
                             cornerRadius = WidgetPrefs.shapeRadiusFactor(WidgetPrefs.getShape(this)),
                             gapScale = WidgetPrefs.getSpacing(this),
                             customLevels = Studio.effectiveLevels(this, theme).takeIf { opts.dark },
-                            avatar = avatar
+                            avatar = avatar,
+                            context = this
                         )
                         runOnUiThread {
                             if (isFinishing || isDestroyed) return@runOnUiThread

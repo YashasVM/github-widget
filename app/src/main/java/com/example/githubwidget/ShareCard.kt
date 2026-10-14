@@ -128,6 +128,10 @@ object ShareCard {
         return out
     }
 
+    /**
+     * Draws the card. Pass [context] to use the Studio font; without it (or
+     * with "System") the card keeps the platform default faces.
+     */
     fun render(
         result: ContributionsResult,
         theme: GraphTheme,
@@ -135,7 +139,8 @@ object ShareCard {
         cornerRadius: Float,
         gapScale: Float,
         customLevels: IntArray? = null,
-        avatar: Bitmap? = null
+        avatar: Bitmap? = null,
+        context: Context? = null
     ): Bitmap {
         val w = 1080
         val pad = 72
@@ -152,24 +157,37 @@ object ShareCard {
         val total = NumberFormat.getInstance(Locale.US).format(result.totalLastYear)
         val avatarBmp = circleAvatar(avatar, 176, accent)
 
+        // Studio font; null keeps the original platform faces exactly.
+        val font = context?.let { Fonts.selected(it) }?.takeIf { it.id != Fonts.SYSTEM }
+        val regular = if (context != null && font != null) Fonts.typeface(context, font.id) else null
+        val bold = if (context != null && font != null) {
+            Fonts.typeface(context, font.id, bold = true)
+        } else {
+            Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        val numbers = if (font != null) bold else Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        val k = font?.scale ?: 1f
+
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = primary
-            textSize = 74f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textSize = 74f * k
+            typeface = bold
         }
         val subPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = muted
-            textSize = 40f
+            textSize = 40f * k
+            if (regular != null) typeface = regular
         }
         val bigPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = accent
-            textSize = 62f
-            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            textSize = 62f * k
+            typeface = numbers
         }
         val bigPaint2 = Paint(bigPaint).apply { color = primary }
         val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = muted
-            textSize = 32f
+            textSize = 32f * k
+            if (regular != null) typeface = regular
         }
         val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = accent
@@ -178,7 +196,8 @@ object ShareCard {
         }
         val footPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = muted
-            textSize = 30f
+            textSize = 30f * k
+            if (regular != null) typeface = regular
         }
 
         val graph = GraphRenderer.render(
@@ -189,7 +208,8 @@ object ShareCard {
             showMonthLabels = true,
             cornerRadius = cornerRadius,
             gapScale = gapScale,
-            emptyBorder = emptyBorder
+            emptyBorder = emptyBorder,
+            typeface = regular
         )
         val graphTargetW = (w - pad * 2).toFloat()
         val graphH = graph.height * (graphTargetW / graph.width)
