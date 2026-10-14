@@ -6,17 +6,17 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
-import android.widget.Toast
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 class ContributionWidgetProvider : AppWidgetProvider() {
 
@@ -24,21 +24,32 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.example.githubwidget.ACTION_REFRESH"
         const val ACTION_REPAINT = "com.example.githubwidget.ACTION_REPAINT"
 
-        /** Guards against overlapping refreshes of the same widget. */
-        private val inFlight = mutableSetOf<Int>()
-
-        @Synchronized
-        private fun beginRefresh(widgetId: Int): Boolean {
-            if (inFlight.contains(widgetId)) return false
-            inFlight.add(widgetId)
-            return true
-        }
-
-        @Synchronized
-        private fun endRefresh(widgetId: Int) {
-            inFlight.remove(widgetId)
-        }
+        /** Long side cap for the rendered card background, in px. */
+        private const val MAX_BG_PX = 900f
     }
+
+    /** When a batch may talk to the server before repainting. */
+    enum class Fetch {
+        /** Repaint from cache only (resize, look changes with data). */
+        NONE,
+
+        /** Fetch only when nothing is cached for the username yet. */
+        IF_MISSING,
+
+        /** System/scheduled refresh: only when stale and the device allows it. */
+        AUTO,
+
+        /** Refresh icon / app buttons: always ask the server. */
+        MANUAL
+    }
+
+    /** Cache state shared by every widget in one batch: parsed + stats computed once. */
+    private class Snapshot(
+        val username: String,
+        val result: ContributionsResult?,
+        val fetchedAt: Long,
+        val stats: ContributionStats?
+    )
 
     /** How much to show, based on the widget's current minimum width. */
     private data class SizeClass(
@@ -62,22 +73,38 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    /** System update (widget added, boot, app updated): repaint, fetch only if stale. */
     override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
-        for (id in ids) {
-            paintCached(context, mgr, id)
-            refreshInBackground(context, mgr, id)
+        val pending = goAsync()
+        Refresher.runAsync(pending) {
+            // Also covers app updates, where onEnabled never fires again.
+            RefreshScheduler.sync(context)
+            runBatch(context, ids, Fetch.AUTO, Refresher.TIMEOUT_INTERACTIVE_MS)
         }
     }
 
-    /** Re-render when the user resizes the widget on the homescreen. */
+    /** Re-render when the user resizes the widget on the homescreen — cache only. */
     override fun onAppWidgetOptionsChanged(
         context: Context,
         mgr: AppWidgetManager,
         widgetId: Int,
         newOptions: Bundle
     ) {
-        paintCached(context, mgr, widgetId)
-        refreshInBackground(context, mgr, widgetId)
+        val pending = goAsync()
+        Refresher.runAsync(pending) {
+            runBatch(context, intArrayOf(widgetId), Fetch.NONE, Refresher.TIMEOUT_INTERACTIVE_MS)
+        }
+    }
+
+    /** First widget placed: start the periodic background refresh. */
+    override fun onEnabled(context: Context) {
+        RefreshScheduler.sync(context)
+    }
+
+    /** Last widget removed: no more background work at all. */
+    override fun onDisabled(context: Context) {
+        RefreshScheduler.cancel(context)
+        RenderCache.clear(context)
     }
 
     /** Per-widget files are removed with the widget — never touch another one. */
@@ -89,28 +116,76 @@ class ContributionWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        val action = intent.action
+        if (action != ACTION_REFRESH && action != ACTION_REPAINT) return
         val mgr = AppWidgetManager.getInstance(context)
-        when (intent.action) {
-            ACTION_REFRESH -> {
-                val ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-                    ?: mgr.getAppWidgetIds(ComponentName(context, ContributionWidgetProvider::class.java))
-                Toast.makeText(context, "Refreshing…", Toast.LENGTH_SHORT).show()
-                onUpdate(context, mgr, ids)
-            }
-            ACTION_REPAINT -> {
-                // Look-only change: repaint from cache, fetch only if no cache yet.
-                val ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-                    ?: mgr.getAppWidgetIds(ComponentName(context, ContributionWidgetProvider::class.java))
-                val username = Prefs.getUsername(context)
-                for (id in ids) {
-                    val cached = Cache.load(context)
-                    if (cached != null && cached.first.username.equals(username, ignoreCase = true)) {
-                        paintCached(context, mgr, id)
-                    } else {
-                        paintCached(context, mgr, id)
-                        refreshInBackground(context, mgr, id)
-                    }
-                }
+        val ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+            ?: mgr.getAppWidgetIds(ComponentName(context, ContributionWidgetProvider::class.java))
+        if (ids.isEmpty()) return
+        val fetch = if (action == ACTION_REFRESH) Fetch.MANUAL else Fetch.IF_MISSING
+        val pending = goAsync()
+        Refresher.runAsync(pending) {
+            // Username may just have been set (widget setup): keep the job in step.
+            if (fetch == Fetch.MANUAL) RefreshScheduler.sync(context)
+            runBatch(context, ids, fetch, Refresher.TIMEOUT_INTERACTIVE_MS)
+        }
+    }
+
+    /**
+     * One shared fetch (when [fetch] allows it), then one repaint of every
+     * widget in [ids] from a single cache load. Runs on [Refresher.executor].
+     */
+    internal fun runBatch(context: Context, ids: IntArray, fetch: Fetch, timeoutMs: Int) {
+        if (ids.isEmpty()) return
+        val mgr = AppWidgetManager.getInstance(context)
+        val username = Prefs.getUsername(context)
+        val doFetch = when (fetch) {
+            Fetch.NONE -> false
+            Fetch.IF_MISSING -> username.isNotBlank() && !Refresher.hasCacheFor(context, username)
+            Fetch.AUTO -> Refresher.shouldAutoFetch(context)
+            Fetch.MANUAL -> username.isNotBlank()
+        }
+        if (!doFetch) {
+            paintAll(context, mgr, ids, Refresher.Outcome.SKIPPED)
+            return
+        }
+        if (fetch == Fetch.MANUAL) {
+            // Manual taps get feedback in the widget itself instead of a toast.
+            paintAll(context, mgr, ids, Refresher.Outcome.SKIPPED, refreshing = true)
+        } else if (!Refresher.hasCacheFor(context, username)) {
+            // A brand-new widget would sit on the bare layout during the fetch.
+            paintAll(context, mgr, ids, Refresher.Outcome.SKIPPED)
+        }
+        val outcome = Refresher.fetch(context, username, timeoutMs)
+        paintAll(context, mgr, ids, outcome)
+    }
+
+    private fun snapshot(context: Context): Snapshot {
+        val username = Prefs.getUsername(context)
+        val cached = Cache.load(context)?.takeIf {
+            username.isNotBlank() && it.first.username.equals(username, ignoreCase = true)
+        }
+        return Snapshot(
+            username,
+            cached?.first,
+            cached?.second ?: 0L,
+            cached?.first?.let { Stats.compute(it.days) }
+        )
+    }
+
+    private fun paintAll(
+        context: Context,
+        mgr: AppWidgetManager,
+        ids: IntArray,
+        outcome: Refresher.Outcome,
+        refreshing: Boolean = false
+    ) {
+        val snap = snapshot(context)
+        for (id in ids) {
+            try {
+                paint(context, mgr, id, snap, outcome, refreshing)
+            } catch (_: Exception) {
+                // One broken widget must not block the others.
             }
         }
     }
@@ -174,7 +249,39 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             WidgetInstance.getCustomColor(context, widgetId)
         )
 
-    private fun baseViews(context: Context, widgetId: Int): RemoteViews {
+    /**
+     * The widget's on-screen size in px (current orientation), capped at
+     * [MAX_BG_PX] on the long side, plus px per dp at that scale.
+     */
+    private fun bgSize(context: Context, mgr: AppWidgetManager, widgetId: Int): Triple<Int, Int, Float> {
+        var wDp = 0
+        var hDp = 0
+        try {
+            val opts = mgr.getAppWidgetOptions(widgetId)
+            val landscape = context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            wDp = opts.getInt(
+                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH else AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0
+            )
+            hDp = opts.getInt(
+                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT else AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0
+            )
+        } catch (_: Exception) {
+            // Fall through to the default size.
+        }
+        if (wDp <= 0 || hDp <= 0) {
+            wDp = 250 // widget_info minWidth x minHeight
+            hDp = 110
+        }
+        val density = context.resources.displayMetrics.density
+        val pxPerDp = density * minOf(1f, MAX_BG_PX / (max(wDp, hDp) * density))
+        return Triple(
+            (wDp * pxPerDp).roundToInt().coerceAtLeast(1),
+            (hDp * pxPerDp).roundToInt().coerceAtLeast(1),
+            pxPerDp
+        )
+    }
+
+    private fun baseViews(context: Context, mgr: AppWidgetManager, widgetId: Int): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_contribution)
         val style = WidgetInstance.getStyle(context, widgetId)
         // Configured widgets keep their own opacity; otherwise the Studio
@@ -191,8 +298,13 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         } else {
             Color.parseColor("#30363D")
         }
-        val cornerPx = WidgetInstance.getCorners(context, widgetId) * 3f
-        val bg = CardRenderer.card(context, 1024, 512, cornerPx, border, alpha)
+        // Rendered at the widget's real aspect so fitXY never stretches the corners.
+        val (w, h, pxPerDp) = bgSize(context, mgr, widgetId)
+        val cornerPx = WidgetInstance.getCorners(context, widgetId) * pxPerDp
+        val bg = CardRenderer.card(
+            context, w, h, cornerPx, border, alpha,
+            strokePx = pxPerDp.coerceAtLeast(1f), useCache = true
+        )
         views.setImageViewBitmap(R.id.widget_bg, bg)
         views.setTextColor(R.id.widget_total, currentTheme(context, widgetId).accent)
         applyTextSize(context, widgetId, views)
@@ -213,22 +325,12 @@ class ContributionWidgetProvider : AppWidgetProvider() {
     private fun formatTotal(total: Int): String =
         NumberFormat.getInstance(Locale.US).format(total)
 
-    private fun isOnline(context: Context): Boolean {
-        return try {
-            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val net = cm.activeNetwork ?: return false
-            val caps = cm.getNetworkCapabilities(net) ?: return false
-            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        } catch (_: Exception) {
-            true // If we can't tell, try the fetch — failure paths keep the cache.
-        }
-    }
-
     private fun paintResult(
         context: Context,
         widgetId: Int,
         views: RemoteViews,
         result: ContributionsResult,
+        stats: ContributionStats,
         size: SizeClass,
         footer: String
     ) {
@@ -241,7 +343,7 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             Studio.getBgType(context) == Studio.BG_IMAGE &&
             Studio.getImageUri(context).isNotEmpty()
         ) {
-            CardRenderer.sampleImage(context, Studio.getImageUri(context), weeks, 7, Studio.SCALE_FILL)
+            CardRenderer.sampleImageCached(context, Studio.getImageUri(context), weeks, 7, Studio.SCALE_FILL)
         } else {
             null
         }
@@ -257,7 +359,6 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             tintAmount = 0.35f
         )
         if (tint != null && !tint.isRecycled) tint.recycle()
-        val stats = Stats.compute(result.days)
         val today = result.days.lastOrNull()?.count ?: 0
         val total = formatTotal(result.totalLastYear)
 
@@ -344,13 +445,20 @@ class ContributionWidgetProvider : AppWidgetProvider() {
     }
 
     /**
-     * Paint instantly from cache (or a clean placeholder). Never touches network,
-     * so the widget is never blank and works fully offline.
+     * Paint one widget from the batch snapshot. Never touches the network,
+     * so the widget is never blank and works fully offline; [outcome] only
+     * picks the status wording.
      */
-    private fun paintCached(context: Context, mgr: AppWidgetManager, widgetId: Int) {
-        val views = baseViews(context, widgetId)
-        val username = Prefs.getUsername(context)
-        val size = sizeClass(mgr, widgetId)
+    private fun paint(
+        context: Context,
+        mgr: AppWidgetManager,
+        widgetId: Int,
+        snap: Snapshot,
+        outcome: Refresher.Outcome,
+        refreshing: Boolean
+    ) {
+        val views = baseViews(context, mgr, widgetId)
+        val username = snap.username
 
         if (username.isBlank()) {
             views.setTextViewText(R.id.widget_title, "Tap to open GH-widgets")
@@ -363,10 +471,33 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             return
         }
 
-        val cached = Cache.load(context)
-        if (cached != null && cached.first.username.equals(username, ignoreCase = true)) {
-            val (result, ts) = cached
-            paintResult(widgetId = widgetId, context = context, views = views, result = result, size = size, footer = "Last updated ${TimeAgo.format(ts)}")
+        if (outcome == Refresher.Outcome.NOT_FOUND) {
+            views.setTextViewText(R.id.widget_title, "@$username")
+            views.setTextViewText(R.id.widget_subtitle, "User not found — tap to fix")
+            mgr.updateAppWidget(widgetId, views)
+            return
+        }
+
+        val result = snap.result
+        val stats = snap.stats
+        if (result != null && stats != null) {
+            val ago = TimeAgo.format(snap.fetchedAt)
+            val footer = when (outcome) {
+                Refresher.Outcome.UPDATED, Refresher.Outcome.UNCHANGED ->
+                    "Updated $ago • tap refresh icon to refresh"
+                Refresher.Outcome.OFFLINE, Refresher.Outcome.FAILED ->
+                    // Offline or server trouble: keep the cache and note its age.
+                    "Last updated $ago • tap refresh icon to retry"
+                else -> "Last updated $ago"
+            }
+            paintResult(context, widgetId, views, result, stats, sizeClass(mgr, widgetId), footer)
+            if (refreshing) {
+                views.setViewVisibility(R.id.widget_subtitle, View.VISIBLE)
+                views.setTextViewText(R.id.widget_subtitle, "Refreshing…")
+            }
+        } else if (outcome == Refresher.Outcome.OFFLINE || outcome == Refresher.Outcome.FAILED) {
+            views.setTextViewText(R.id.widget_title, "@$username")
+            views.setTextViewText(R.id.widget_subtitle, "No connection — tap refresh icon to retry")
         } else {
             views.setTextViewText(R.id.widget_title, "@$username")
             views.setTextViewText(R.id.widget_subtitle, "Loading contributions…")
@@ -376,57 +507,5 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             views.setViewVisibility(R.id.widget_updated, View.GONE)
         }
         mgr.updateAppWidget(widgetId, views)
-    }
-
-    /**
-     * One background fetch per widget; concurrent refreshes of the same widget
-     * are skipped. Offline means no request at all — the cache stays on screen.
-     * Failures keep the cached graph.
-     */
-    private fun refreshInBackground(context: Context, mgr: AppWidgetManager, widgetId: Int) {
-        val username = Prefs.getUsername(context)
-        if (username.isBlank() || !beginRefresh(widgetId)) return
-        if (!isOnline(context)) {
-            endRefresh(widgetId)
-            return
-        }
-
-        val pending = goAsync()
-        Thread {
-            try {
-                val result = GithubApi.fetch(username)
-                Cache.save(context, result)
-                val views = baseViews(context, widgetId)
-                val size = sizeClass(mgr, widgetId)
-                paintResult(context, widgetId, views, result, size, "Updated ${TimeAgo.format(System.currentTimeMillis())} • tap refresh icon to refresh")
-                mgr.updateAppWidget(widgetId, views)
-            } catch (e: UserNotFoundException) {
-                val views = baseViews(context, widgetId)
-                views.setTextViewText(R.id.widget_title, "@$username")
-                views.setTextViewText(R.id.widget_subtitle, "User not found — tap to fix")
-                mgr.updateAppWidget(widgetId, views)
-            } catch (_: Exception) {
-                // Offline or server trouble: keep whatever is on screen (cache
-                // if we have it) and note the data's age instead of an error dump.
-                val cached = Cache.load(context)
-                if (cached != null && cached.first.username.equals(username, ignoreCase = true)) {
-                    val views = baseViews(context, widgetId)
-                    val size = sizeClass(mgr, widgetId)
-                    paintResult(
-                        context, widgetId, views, cached.first, size,
-                        "Last updated ${TimeAgo.format(cached.second)} • tap refresh icon to retry"
-                    )
-                    mgr.updateAppWidget(widgetId, views)
-                } else {
-                    val views = baseViews(context, widgetId)
-                    views.setTextViewText(R.id.widget_title, "@$username")
-                    views.setTextViewText(R.id.widget_subtitle, "No connection — tap refresh icon to retry")
-                    mgr.updateAppWidget(widgetId, views)
-                }
-            } finally {
-                endRefresh(widgetId)
-                pending.finish()
-            }
-        }.start()
     }
 }
