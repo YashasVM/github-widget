@@ -11,6 +11,9 @@ import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
 import android.net.Uri
+import java.io.File
+import java.io.FileOutputStream
+import java.security.MessageDigest
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -30,14 +33,23 @@ object CardRenderer {
         w: Int,
         h: Int,
         opacityOverride: Int? = null
-    ): Bitmap {
+    ): Bitmap = composite(context, w, h, opacityOverride).first
+
+    /** Background plus whether it came out complete (false = image unreadable). */
+    private fun composite(
+        context: android.content.Context,
+        w: Int,
+        h: Int,
+        opacityOverride: Int?
+    ): Pair<Bitmap, Boolean> {
+        var complete = true
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val type = Studio.getBgType(context)
         val opacity = (opacityOverride ?: Studio.getBgOpacity(context)).coerceIn(0, 100)
 
         if (type == Studio.BG_TRANSPARENT) {
-            return bmp // fully transparent; overlay would defeat the point
+            return bmp to true // fully transparent; overlay would defeat the point
         }
 
         if (type == Studio.BG_GRADIENT) {
@@ -58,6 +70,8 @@ object CardRenderer {
                 val paint = Paint(Paint.FILTER_BITMAP_FLAG).apply { this.alpha = alpha }
                 canvas.drawBitmap(img, 0f, 0f, paint)
                 if (!img.isRecycled) img.recycle()
+            } else {
+                complete = false
             }
         } else {
             // Solid + gradient fills: fold the opacity in with DST_OUT so the
@@ -91,21 +105,29 @@ object CardRenderer {
                 )
             )
         }
-        return out
+        return out to complete
     }
 
     private fun outCanvas(bmp: Bitmap): Canvas = Canvas(bmp)
 
-    /** Full card: background clipped to rounded corners plus the border. */
+    /**
+     * Full card: background clipped to rounded corners plus the border.
+     * With [useCache], expensive results (image or blur) are reused from
+     * [RenderCache], keyed by every input that changes the pixels.
+     */
     fun card(
         context: android.content.Context,
         w: Int,
         h: Int,
         cornerPx: Float,
         borderColor: Int,
-        opacityOverride: Int? = null
+        opacityOverride: Int? = null,
+        strokePx: Float = 3f,
+        useCache: Boolean = false
     ): Bitmap {
-        val bg = background(context, w, h, opacityOverride)
+        val key = if (useCache) cardKey(context, w, h, cornerPx, borderColor, opacityOverride, strokePx) else null
+        if (key != null) RenderCache.get(context, key)?.let { return it }
+        val (bg, complete) = composite(context, w, h, opacityOverride)
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val rect = RectF(0f, 0f, w.toFloat(), h.toFloat())
@@ -119,11 +141,67 @@ object CardRenderer {
         if (!bg.isRecycled) bg.recycle()
         val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
-            strokeWidth = 3f
+            strokeWidth = strokePx
             color = borderColor
         }
         canvas.drawRoundRect(rect, cornerPx, cornerPx, border)
+        // Never cache a card whose image failed to load; retry next time.
+        if (key != null && complete) RenderCache.put(context, key, bmp)
         return bmp
+    }
+
+    /**
+     * Cache key for [card], or null when the render is cheap enough
+     * (solid/gradient without blur) that a PNG round-trip wouldn't pay off.
+     */
+    private fun cardKey(
+        context: android.content.Context,
+        w: Int,
+        h: Int,
+        cornerPx: Float,
+        borderColor: Int,
+        opacityOverride: Int?,
+        strokePx: Float
+    ): String? {
+        val type = Studio.getBgType(context)
+        val blur = Studio.getBlur(context)
+        if (type == Studio.BG_TRANSPARENT) return null
+        if (type != Studio.BG_IMAGE && blur <= 0) return null
+        val uri = if (type == Studio.BG_IMAGE) Studio.getImageUri(context) else ""
+        return RenderCache.key(
+            "card", w, h, cornerPx, borderColor, strokePx, type,
+            Studio.getBgColor(context), Studio.getGrad2(context), Studio.getGrad3(context),
+            Studio.isGradRadial(context), Studio.getGradAngle(context),
+            uri, imageStamp(uri), Studio.getImageScale(context),
+            opacityOverride ?: Studio.getBgOpacity(context), blur,
+            Studio.getOverlay(context), Studio.getOverlayOpacity(context)
+        )
+    }
+
+    /** [sampleImage] through [RenderCache]: the image is decoded once per change, not per repaint. */
+    fun sampleImageCached(
+        context: android.content.Context,
+        uriStr: String,
+        w: Int,
+        h: Int,
+        mode: String
+    ): Bitmap? {
+        val key = RenderCache.key("sample", uriStr, imageStamp(uriStr), w, h, mode)
+        RenderCache.get(context, key)?.let { return it }
+        val bmp = sampleImage(context, uriStr, w, h, mode) ?: return null
+        RenderCache.put(context, key, bmp)
+        return bmp
+    }
+
+    /** Detects in-place edits of local image files (content URIs are immutable picks). */
+    private fun imageStamp(uriStr: String): String {
+        if (!uriStr.startsWith("file://")) return ""
+        return try {
+            val f = File(Uri.parse(uriStr).path ?: return "")
+            "${f.lastModified()}:${f.length()}"
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     private fun drawGradient(canvas: Canvas, w: Int, h: Int, context: android.content.Context) {
@@ -217,5 +295,63 @@ object CardRenderer {
         val out = Bitmap.createScaledBitmap(small, src.width, src.height, true)
         if (!small.isRecycled) small.recycle()
         return out
+    }
+}
+
+/**
+ * Tiny PNG cache in cacheDir for widget renders that are costly to redo
+ * (decoding the user's image, blurring). Entries are content-addressed, so
+ * any look change produces a new key; only the newest [KEEP] files stay.
+ * Callers serialize on the widget refresh thread.
+ */
+object RenderCache {
+
+    private const val DIR = "render"
+    private const val KEEP = 8
+
+    private fun dir(context: android.content.Context): File =
+        File(context.cacheDir, DIR).apply { mkdirs() }
+
+    /** Stable hash of every input that affects the pixels. */
+    fun key(vararg parts: Any?): String {
+        val digest = MessageDigest.getInstance("SHA-1")
+            .digest(parts.joinToString("|").toByteArray())
+        return digest.joinToString("") { "%02x".format(it) }
+    }
+
+    fun get(context: android.content.Context, key: String): Bitmap? {
+        return try {
+            val f = File(dir(context), "$key.png")
+            if (!f.exists()) return null
+            val bmp = BitmapFactory.decodeFile(f.absolutePath) ?: return null
+            f.setLastModified(System.currentTimeMillis()) // keep hot entries from pruning
+            bmp
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun put(context: android.content.Context, key: String, bmp: Bitmap) {
+        try {
+            val d = dir(context)
+            val tmp = File(d, "$key.tmp")
+            FileOutputStream(tmp).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            if (!tmp.renameTo(File(d, "$key.png"))) tmp.delete()
+            d.listFiles()
+                ?.sortedByDescending { it.lastModified() }
+                ?.drop(KEEP)
+                ?.forEach { it.delete() }
+        } catch (_: Exception) {
+            // Cache is an optimization only.
+        }
+    }
+
+    /** Drops every cached render (e.g. when the last widget is removed). */
+    fun clear(context: android.content.Context) {
+        try {
+            File(context.cacheDir, DIR).listFiles()?.forEach { it.delete() }
+        } catch (_: Exception) {
+            // Best-effort.
+        }
     }
 }
