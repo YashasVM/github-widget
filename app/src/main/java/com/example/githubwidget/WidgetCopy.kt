@@ -39,11 +39,20 @@ object WidgetCopy {
         val customLabel: String
     )
 
+    /**
+     * How much the system font size enlarges sp text, measured at the widget's
+     * 12sp subtitle size (non-linear on Android 14+). The widget's texts are in sp,
+     * so [fit] must budget for it or a large font squeezes the graph away.
+     */
+    fun systemTextScale(dm: android.util.DisplayMetrics): Float =
+        android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 12f, dm) /
+            (12f * dm.density)
+
     fun formatTotal(total: Int): String = NumberFormat.getInstance(Locale.US).format(total)
 
     /**
      * Size classes from the widget's size in dp. [textScale] is the Studio text
-     * size times the font's scale. The graph gets whatever height is left under
+     * size times the font's scale times [systemTextScale]. The graph gets whatever height is left under
      * the header (and footer, when it fits), and the week count is picked so the
      * graph's aspect roughly matches that area: wide and short shows more weeks,
      * tall shows fewer, bigger cells. The chosen range still caps it.

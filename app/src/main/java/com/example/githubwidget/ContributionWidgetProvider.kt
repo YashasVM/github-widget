@@ -57,7 +57,8 @@ class ContributionWidgetProvider : AppWidgetProvider() {
      */
     private fun sizeClass(context: Context, mgr: AppWidgetManager, widgetId: Int): WidgetCopy.Fit {
         val (wDp, hDp) = sizeDp(context, mgr, widgetId)
-        return WidgetCopy.fit(wDp, hDp, textScale(context))
+        val sysScale = WidgetCopy.systemTextScale(context.resources.displayMetrics)
+        return WidgetCopy.fit(wDp, hDp, textScale(context) * sysScale)
     }
 
     /** Studio text size times the font's own scale (e.g. Press Start 2P runs wide). */

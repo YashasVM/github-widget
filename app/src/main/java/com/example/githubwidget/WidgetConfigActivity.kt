@@ -377,7 +377,10 @@ class WidgetConfigActivity : AppCompatActivity() {
         val wPx = preview.width
         val hPx = preview.height
         // Treat the preview as a 4x2 widget as wide as the card.
-        val fit = WidgetCopy.fit(if (wPx > 0) (wPx / density).toInt() else 320, 180, scale)
+        val fit = WidgetCopy.fit(
+            if (wPx > 0) (wPx / density).toInt() else 320, 180,
+            scale * WidgetCopy.systemTextScale(resources.displayMetrics)
+        )
         val corners = WidgetInstance.getCorners(this, widgetId)
 
         renderer.execute {
