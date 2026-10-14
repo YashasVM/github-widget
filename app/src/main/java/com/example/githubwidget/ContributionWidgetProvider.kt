@@ -462,10 +462,9 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         val views = baseViews(context, mgr, widgetId)
         val username = snap.username
         val size = sizeClass(context, mgr, widgetId)
-        if (refreshing) {
-            // Dimmed icon while the manual refresh runs.
-            views.setInt(R.id.widget_refresh, "setImageAlpha", 90)
-        }
+        // Dimmed icon while the manual refresh runs. Always set: launchers reapply
+        // updates onto the existing view, so a dim left unset would stick.
+        views.setInt(R.id.widget_refresh, "setImageAlpha", if (refreshing) 90 else 255)
 
         if (username.isBlank()) {
             paintPlaceholder(
