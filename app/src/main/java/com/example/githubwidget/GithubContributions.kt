@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -117,6 +118,7 @@ object GraphRenderer {
      * @param cellScale scales cell size (graph size control)
      * @param tint optional background image sampled per cell for
      *   image-through-graph mode (tintAmount 0..0.6)
+     * @param typeface month-label typeface (null keeps the Paint default)
      */
     fun render(
         days: List<Day>,
@@ -129,7 +131,8 @@ object GraphRenderer {
         emptyBorder: Int = Color.parseColor("#30363D"),
         cellScale: Float = 1f,
         tint: Bitmap? = null,
-        tintAmount: Float = 0f
+        tintAmount: Float = 0f,
+        typeface: Typeface? = null
     ): Bitmap {
         if (days.isEmpty()) throw IllegalArgumentException("No days to render")
         val palette = colors ?: Themes.GREEN.levels
@@ -186,6 +189,7 @@ object GraphRenderer {
                 color = Color.parseColor("#8B949E")
                 textSize = 9f * scale
             }
+            if (typeface != null) labelPaint.typeface = typeface
             var prevMonth = -1
             shownMonths.forEachIndexed { col, month ->
                 if (month != prevMonth) {

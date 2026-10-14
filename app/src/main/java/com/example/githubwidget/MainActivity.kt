@@ -116,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         val chkActive = findViewById<MaterialCheckBox>(R.id.st_chk_active)
         val labelInput = findViewById<EditText>(R.id.st_label)
         val rowTextSizes = findViewById<LinearLayout>(R.id.st_textsizes)
+        val rowFonts = findViewById<LinearLayout>(R.id.st_fonts)
         val cornersText = findViewById<TextView>(R.id.st_corners_text)
         val cornersSlider = findViewById<Slider>(R.id.st_corners)
         val rowPresets = findViewById<LinearLayout>(R.id.st_presets)
@@ -168,7 +169,8 @@ class MainActivity : AppCompatActivity() {
                     gapScale = WidgetPrefs.getSpacing(this),
                     cellScale = Studio.getCellSize(this),
                     tint = tintBmp,
-                    tintAmount = 0.35f
+                    tintAmount = 0.35f,
+                    typeface = Fonts.graphLabels(this)
                 )
             )
             graph.contentDescription =
@@ -208,6 +210,10 @@ class MainActivity : AppCompatActivity() {
             subtitle.textSize = 12f * s
             total.textSize = 24f * s
             footer.textSize = 11f * s
+            title.typeface = Fonts.current(this, bold = true)
+            subtitle.typeface = Fonts.current(this)
+            total.typeface = Fonts.numbers(this)
+            footer.typeface = Fonts.current(this)
             paintCard()
         }
 
@@ -327,6 +333,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var rangeButtons: List<MaterialButton>
         lateinit var shapeButtons: List<MaterialButton>
         lateinit var sizeButtons: List<MaterialButton>
+        lateinit var fontButtons: List<MaterialButton>
         lateinit var bgTypeButtons: List<MaterialButton>
         lateinit var scaleButtons: List<MaterialButton>
         lateinit var angleButtons: List<MaterialButton>
@@ -401,6 +408,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        /** Font chips keep their own typeface; paintOptions would reset it. */
+        fun paintFonts() {
+            val selected = Fonts.ALL.indexOfFirst { it.id == Fonts.get(this) }
+            paintOptions(fontButtons, selected)
+            fontButtons.forEachIndexed { i, b ->
+                b.typeface = Fonts.typeface(this, Fonts.ALL[i].id, bold = i == selected)
+            }
+        }
+
         fun syncSwatches() {
             bgColorBtn.backgroundTintList = ColorStateList.valueOf(Studio.getBgColor(this))
             grad1.backgroundTintList = ColorStateList.valueOf(Studio.getBgColor(this))
@@ -422,6 +438,7 @@ class MainActivity : AppCompatActivity() {
             )
             paintOptions(shapeButtons, shapes.indexOf(WidgetPrefs.getShape(this)))
             paintOptions(sizeButtons, Studio.getTextSize(this))
+            paintFonts()
             val bgTypes = listOf(Studio.BG_SOLID, Studio.BG_GRADIENT, Studio.BG_IMAGE, Studio.BG_TRANSPARENT)
             paintOptions(bgTypeButtons, bgTypes.indexOf(Studio.getBgType(this)))
             paintOptions(scaleButtons, if (Studio.getImageScale(this) == Studio.SCALE_FIT) 1 else 0)
@@ -575,6 +592,26 @@ class MainActivity : AppCompatActivity() {
                     repaintWidget()
                 }
                 rowTextSizes.addView(b)
+            }
+        }
+
+        fontButtons = Fonts.ALL.map { f ->
+            optionButton("Aa ${f.name}").also { b ->
+                b.contentDescription = "Font ${f.name}"
+                b.setPadding(dp(12), 0, dp(12), 0)
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                lp.marginEnd = dp(8)
+                b.layoutParams = lp
+                b.setOnClickListener {
+                    Fonts.set(this, f.id)
+                    paintFonts()
+                    repaintPreview()
+                    repaintWidget()
+                }
+                rowFonts.addView(b)
             }
         }
 
@@ -798,6 +835,7 @@ class MainActivity : AppCompatActivity() {
             WidgetPrefs.resetToDefaults(this)
             Studio.resetBackground(this)
             Studio.resetGraph(this)
+            Fonts.set(this, Fonts.SYSTEM)
             Studio.setCustomLabel(this, "")
             Studio.setShowActiveDays(this, false)
             labelInput.setText("")
@@ -1012,7 +1050,8 @@ class MainActivity : AppCompatActivity() {
                     cornerRadius = WidgetPrefs.shapeRadiusFactor(WidgetPrefs.getShape(this)),
                     gapScale = WidgetPrefs.getSpacing(this),
                     customLevels = Studio.effectiveLevels(this, t),
-                    avatar = avatar
+                    avatar = avatar,
+                    context = this
                 )
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread

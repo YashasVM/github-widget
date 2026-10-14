@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Text styles for the per-font widget layouts (widget_contribution_<font>.xml).
+    They mirror widget_contribution.xml; each variant only adds android:fontFamily.
+    The provider still applies the Studio text size at runtime.
+-->
+<resources>
+    <style name="WidgetText" />
+
+    <style name="WidgetText.Title">
+        <item name="android:textColor">#F0F6FC</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="WidgetText.Subtitle">
+        <item name="android:textColor">#8B949E</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="WidgetText.Total">
+        <item name="android:textColor">#39D353</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="WidgetText.Updated">
+        <item name="android:textColor">#8B949E</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+</resources>

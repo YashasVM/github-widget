@@ -282,7 +282,7 @@ class ContributionWidgetProvider : AppWidgetProvider() {
     }
 
     private fun baseViews(context: Context, mgr: AppWidgetManager, widgetId: Int): RemoteViews {
-        val views = RemoteViews(context.packageName, R.layout.widget_contribution)
+        val views = RemoteViews(context.packageName, Fonts.widgetLayout(context))
         val style = WidgetInstance.getStyle(context, widgetId)
         // Configured widgets keep their own opacity; otherwise the Studio
         // background opacity rules (it migrates the old card opacity).
@@ -315,7 +315,7 @@ class ContributionWidgetProvider : AppWidgetProvider() {
     /** Widget text scales with the Studio text-size setting. */
     private fun applyTextSize(context: Context, widgetId: Int, views: RemoteViews) {
         // Studio text size is global; per-widget looks predate it.
-        val s = Studio.textScale(Studio.getTextSize(context))
+        val s = Studio.textScale(Studio.getTextSize(context)) * Fonts.selected(context).scale
         views.setTextViewTextSize(R.id.widget_title, android.util.TypedValue.COMPLEX_UNIT_SP, 14f * s)
         views.setTextViewTextSize(R.id.widget_subtitle, android.util.TypedValue.COMPLEX_UNIT_SP, 11f * s)
         views.setTextViewTextSize(R.id.widget_total, android.util.TypedValue.COMPLEX_UNIT_SP, 20f * s)
@@ -356,7 +356,8 @@ class ContributionWidgetProvider : AppWidgetProvider() {
             gapScale = WidgetInstance.getSpacing(context, widgetId),
             cellScale = Studio.getCellSize(context),
             tint = tint,
-            tintAmount = 0.35f
+            tintAmount = 0.35f,
+            typeface = Fonts.graphLabels(context)
         )
         if (tint != null && !tint.isRecycled) tint.recycle()
         val today = result.days.lastOrNull()?.count ?: 0

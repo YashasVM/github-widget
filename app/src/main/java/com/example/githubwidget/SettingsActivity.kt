@@ -121,6 +121,7 @@ class SettingsActivity : AppCompatActivity() {
                     WidgetPrefs.resetToDefaults(this)
                     Studio.resetBackground(this)
                     Studio.resetGraph(this)
+                    Fonts.set(this, Fonts.SYSTEM)
                     Studio.setCustomLabel(this, "")
                     Studio.setShowActiveDays(this, false)
                     Prefs.requestRepaint(this)
@@ -156,6 +157,32 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.set_issue).setOnClickListener {
             openUrl("https://github.com/mrduhlol/github-widget/issues/new")
         }
+        findViewById<MaterialButton>(R.id.set_font_licenses).setOnClickListener {
+            showFontLicenses()
+        }
+    }
+
+    /** Bundled fonts and their SIL OFL 1.1 texts (from assets/licenses). */
+    private fun showFontLicenses() {
+        val fonts = Fonts.ALL.filter { it.license != null }
+        AlertDialog.Builder(this)
+            .setTitle("Open-source fonts")
+            .setItems(fonts.map { "${it.name} — SIL Open Font License 1.1" }.toTypedArray()) { _, i ->
+                val text = Fonts.licenseText(this, fonts[i]) ?: "License text unavailable."
+                val body = TextView(this).apply {
+                    this.text = text
+                    textSize = 11f
+                    setTextIsSelectable(true)
+                    setPadding(dp(20), dp(8), dp(20), dp(8))
+                }
+                AlertDialog.Builder(this)
+                    .setTitle(fonts[i].name)
+                    .setView(android.widget.ScrollView(this).apply { addView(body) })
+                    .setPositiveButton("Close", null)
+                    .show()
+            }
+            .setPositiveButton("Close", null)
+            .show()
     }
 
     override fun onResume() {
