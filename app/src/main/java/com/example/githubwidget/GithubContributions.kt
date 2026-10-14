@@ -30,23 +30,57 @@ class UserNotFoundException(username: String) :
  */
 object GithubApi {
 
-    fun fetch(username: String): ContributionsResult {
+    /** One network answer: fresh data, or "unchanged since [etag]" (HTTP 304). */
+    class Response(val result: ContributionsResult?, val etag: String?) {
+        val notModified: Boolean get() = result == null
+    }
+
+    @Volatile
+    private var userAgent = "GH-widgets-android"
+
+    /** Identifies the app (and its version) to the API host. */
+    fun init(context: android.content.Context) {
+        if (userAgent != "GH-widgets-android") return
+        userAgent = try {
+            @Suppress("DEPRECATION")
+            val v = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+            "GH-widgets-android/$v (+https://github.com/mrduhlol/github-widget)"
+        } catch (_: Exception) {
+            "GH-widgets-android"
+        }
+    }
+
+    fun fetch(username: String): ContributionsResult =
+        fetchConditional(username, null).result ?: throw RuntimeException("Empty response")
+
+    /**
+     * Conditional GET: sends If-None-Match when [etag] is known, so an
+     * unchanged graph costs a tiny 304 instead of the full JSON. Gzip is
+     * negotiated transparently by HttpURLConnection.
+     */
+    fun fetchConditional(username: String, etag: String?, timeoutMs: Int = 15_000): Response {
         val clean = username.trim().trimStart('@')
         require(clean.isNotEmpty()) { "Username is empty" }
         val url = URL("https://github-contributions-api.jogruber.de/v4/$clean?y=last")
         val conn = (url.openConnection() as HttpURLConnection).apply {
-            connectTimeout = 15_000
-            readTimeout = 15_000
+            connectTimeout = timeoutMs
+            readTimeout = timeoutMs
             requestMethod = "GET"
-            setRequestProperty("User-Agent", "github-widget-android/1.0")
+            useCaches = false
+            setRequestProperty("User-Agent", userAgent)
+            setRequestProperty("Accept", "application/json")
+            if (!etag.isNullOrEmpty()) setRequestProperty("If-None-Match", etag)
         }
         try {
             val code = conn.responseCode
             if (code == 404) throw UserNotFoundException(clean)
+            if (code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                return Response(null, conn.getHeaderField("ETag") ?: etag)
+            }
             val stream = if (code in 200..299) conn.inputStream else conn.errorStream
-            val body = stream.bufferedReader().use { it.readText() }
+            val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
             if (code !in 200..299) throw RuntimeException("Server returned HTTP $code.")
-            return parse(clean, JSONObject(body))
+            return Response(parse(clean, JSONObject(body)), conn.getHeaderField("ETag"))
         } finally {
             conn.disconnect()
         }
