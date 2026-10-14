@@ -877,8 +877,8 @@ class MainActivity : AppCompatActivity() {
 
             Thread {
                 try {
-                    val result = GithubApi.fetch(username)
-                    Cache.save(this, result)
+                    // Shared conditional fetch (ETag, deduped with widget refreshes).
+                    val result = Refresher.fetchForApp(this, username)
                     runOnUiThread {
                         if (isFinishing || isDestroyed) return@runOnUiThread
                         showResult(result, TimeAgo.format(System.currentTimeMillis()))

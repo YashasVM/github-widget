@@ -61,6 +61,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:text="Refresh"
+        android:textColor="#F0F6FC"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/set_last_refreshed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Last refreshed: never"
+        android:textColor="#8B949E"
+        android:textSize="12sp"
+        android:typeface="monospace" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/set_interval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Background refresh: every 6 hours"
+        android:textSize="12sp"
+        app:backgroundTint="#21262D"
+        app:cornerRadius="12dp" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/set_wifi_only"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp"
+        android:text="Wi-Fi only"
+        android:textColor="#F0F6FC" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Background refreshes wait for a connection and skip low battery, Battery Saver and Data Saver. The refresh icon on a widget always refreshes."
+        android:textColor="#8B949E"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="Look"
         android:textColor="#F0F6FC"
         android:textSize="13sp"
