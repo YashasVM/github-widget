@@ -438,8 +438,13 @@ class ContributionWidgetProvider : AppWidgetProvider() {
         if (label.isNotEmpty()) {
             text = label
         } else if (WidgetInstance.showLongest(context, widgetId)) {
-            text = text.replace(" • tap refresh icon", " • ${stats.longestStreak}d longest • tap refresh icon")
-                .replace("Last updated", "Updated")
+            // Cache-only paints (resize, look change, fresh-cache refresh) have no
+            // "tap refresh icon" tail; append the streak instead of dropping it.
+            text = if (text.contains(" • tap refresh icon")) {
+                text.replace(" • tap refresh icon", " • ${stats.longestStreak}d longest • tap refresh icon")
+            } else {
+                "$text • ${stats.longestStreak}d longest"
+            }.replace("Last updated", "Updated")
         }
         views.setViewVisibility(R.id.widget_updated, View.VISIBLE)
         views.setTextViewText(R.id.widget_updated, text)
