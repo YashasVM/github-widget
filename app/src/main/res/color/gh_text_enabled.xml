@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Primary text that dims when the control is disabled. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/gh_text_disabled" android:state_enabled="false" />
+    <item android:color="@color/gh_text" />
+</selector>

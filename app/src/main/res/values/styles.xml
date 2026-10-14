@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    GH component styles. Use these in app screens instead of repeating
+    backgroundTint / cornerRadius / strokeColor / textSize on every view.
+    Type lives in type.xml, colors in colors.xml, spacing in dimens.xml.
+-->
+<resources>
+
+    <!-- ===================== Text (TextView styles with color) ===================== -->
+
+    <style name="Widget.GH.Text" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Body</item>
+        <item name="android:textColor">@color/gh_text</item>
+    </style>
+
+    <style name="Widget.GH.Text.Display">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Display</item>
+        <item name="android:accessibilityHeading">true</item>
+    </style>
+
+    <style name="Widget.GH.Text.Headline">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Headline</item>
+        <item name="android:accessibilityHeading">true</item>
+    </style>
+
+    <style name="Widget.GH.Text.Title">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Title</item>
+    </style>
+
+    <!-- Section header inside a screen: heading for TalkBack navigation. -->
+    <style name="Widget.GH.Text.Section">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Section</item>
+        <item name="android:accessibilityHeading">true</item>
+    </style>
+
+    <style name="Widget.GH.Text.Body" />
+
+    <style name="Widget.GH.Text.Body.Muted">
+        <item name="android:textColor">@color/gh_text_muted</item>
+    </style>
+
+    <!-- Field label above or beside a control -->
+    <style name="Widget.GH.Text.Label">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Label</item>
+        <item name="android:textColor">@color/gh_text_muted</item>
+    </style>
+
+    <style name="Widget.GH.Text.Caption">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Caption</item>
+        <item name="android:textColor">@color/gh_text_muted</item>
+    </style>
+
+    <!-- Current value next to a label: "16dp", "45%", "#39D353" -->
+    <style name="Widget.GH.Text.Value">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Mono</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="Widget.GH.Text.Eyebrow">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Eyebrow</item>
+        <item name="android:textColor">@color/gh_accent</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.GH.Text.Stat">
+        <item name="android:textAppearance">@style/TextAppearance.GH.Stat</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- ===================== Buttons ===================== -->
+
+    <!-- Theme default for MaterialButton (materialButtonStyle): light label, CTA-green fill.
+         Shapes/sizes stay M3 defaults so existing layouts that set their own height,
+         radius and tint render as before. -->
+    <style name="Widget.GH.Button.Default" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/gh_button_primary_bg</item>
+        <item name="android:textColor">@color/gh_text_enabled</item>
+        <item name="iconTint">@color/gh_text_enabled</item>
+    </style>
+
+    <!-- The one filled call to action per screen. #238636 + white = 4.63:1. -->
+    <style name="Widget.GH.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/gh_button_primary_bg</item>
+        <item name="android:textColor">@color/gh_button_primary_text</item>
+        <item name="iconTint">@color/gh_button_primary_text</item>
+        <item name="cornerRadius">@dimen/gh_radius_m</item>
+        <item name="android:minHeight">@dimen/gh_button_min</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
+    </style>
+
+    <!-- Secondary actions: dark fill, hairline edge. -->
+    <style name="Widget.GH.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="backgroundTint">@color/gh_surface_control</item>
+        <item name="android:textColor">@color/gh_text_enabled</item>
+        <item name="iconTint">@color/gh_text_enabled</item>
+        <item name="strokeColor">@color/gh_outline_variant</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">@dimen/gh_radius_m</item>
+        <item name="android:minHeight">@dimen/gh_button_min</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
+    </style>
+
+    <style name="Widget.GH.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/gh_text_enabled</item>
+        <item name="iconTint">@color/gh_text_enabled</item>
+        <item name="strokeColor">@color/gh_outline</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">@dimen/gh_radius_m</item>
+        <item name="android:minHeight">@dimen/gh_button_min</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
+    </style>
+
+    <!-- Destructive action: red outline, never a big red fill. -->
+    <style name="Widget.GH.Button.Danger" parent="Widget.GH.Button.Outlined">
+        <item name="android:textColor">@color/gh_danger</item>
+        <item name="iconTint">@color/gh_danger</item>
+        <item name="strokeColor">@color/gh_danger</item>
+    </style>
+
+    <style name="Widget.GH.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/gh_accent</item>
+        <item name="iconTint">@color/gh_accent</item>
+        <item name="android:minHeight">@dimen/gh_touch_min</item>
+        <item name="cornerRadius">@dimen/gh_radius_m</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.Button</item>
+    </style>
+
+    <!-- 48dp icon-only button (set contentDescription!). -->
+    <style name="Widget.GH.Button.Icon" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/gh_text_enabled</item>
+        <item name="iconSize">24dp</item>
+        <item name="android:minWidth">@dimen/gh_touch_min</item>
+        <item name="android:minHeight">@dimen/gh_touch_min</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <!-- One option of a single-choice MaterialButtonToggleGroup (segmented row). -->
+    <style name="Widget.GH.Button.Segment" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:checkable">true</item>
+        <item name="backgroundTint">@color/gh_segment_bg</item>
+        <item name="strokeColor">@color/gh_segment_stroke</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/gh_text_enabled</item>
+        <item name="cornerRadius">@dimen/gh_radius_m</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">@dimen/gh_touch_min</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.Label</item>
+    </style>
+
+    <!-- ===================== Chips ===================== -->
+
+    <!-- Single-choice chip in a ChipGroup (singleSelection). Check mark + tonal fill when selected. -->
+    <style name="Widget.GH.Chip.Choice" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/gh_segment_bg</item>
+        <item name="chipStrokeColor">@color/gh_segment_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">@dimen/gh_radius_m</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="android:textColor">@color/gh_text_enabled</item>
+        <item name="checkedIconTint">@color/gh_accent</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.Label</item>
+    </style>
+
+    <!-- ===================== Containers ===================== -->
+
+    <style name="Widget.GH.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardBackgroundColor">@color/gh_surface</item>
+        <item name="strokeColor">@color/gh_outline_variant</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardCornerRadius">@dimen/gh_radius_l</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+    <!-- Selectable tile (theme swatch, preset): 3:1 outline at rest. -->
+    <style name="Widget.GH.Card.Tile">
+        <item name="strokeColor">@color/gh_outline</item>
+        <item name="cardCornerRadius">@dimen/gh_radius_m</item>
+        <item name="checkedIcon">@null</item>
+    </style>
+
+    <!-- Inline error banner: icon + message + Retry. -->
+    <style name="Widget.GH.Card.Error">
+        <item name="cardBackgroundColor">@color/gh_danger_container</item>
+        <item name="strokeColor">@color/gh_danger</item>
+        <item name="cardCornerRadius">@dimen/gh_radius_m</item>
+    </style>
+
+    <style name="Widget.GH.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/gh_input_stroke</item>
+        <item name="boxBackgroundColor">@color/gh_surface</item>
+        <item name="boxCornerRadiusTopStart">@dimen/gh_radius_m</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/gh_radius_m</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/gh_radius_m</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/gh_radius_m</item>
+        <item name="hintTextColor">@color/gh_accent</item>
+        <item name="android:textColorHint">@color/gh_text_muted</item>
+        <item name="helperTextTextColor">@color/gh_text_muted</item>
+        <item name="prefixTextColor">@color/gh_text_muted</item>
+        <item name="endIconTint">@color/gh_text</item>
+    </style>
+
+    <style name="Widget.GH.Slider" parent="Widget.Material3.Slider">
+        <item name="tickVisible">false</item>
+        <item name="trackColorInactive">@color/gh_surface_control</item>
+    </style>
+
+    <style name="Widget.GH.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="android:background">@color/gh_bg</item>
+        <item name="tabTextColor">@color/gh_tab_text</item>
+        <item name="tabSelectedTextColor">@color/gh_text</item>
+        <item name="tabIndicatorColor">@color/gh_accent</item>
+        <item name="tabIndicatorHeight">3dp</item>
+        <item name="tabIndicatorFullWidth">false</item>
+        <item name="tabTextAppearance">@style/TextAppearance.GH.Button</item>
+        <item name="tabMinWidth">48dp</item>
+        <item name="tabPaddingStart">12dp</item>
+        <item name="tabPaddingEnd">12dp</item>
+        <item name="tabContentStart">0dp</item>
+    </style>
+
+    <style name="Widget.GH.ProgressLinear" parent="Widget.Material3.LinearProgressIndicator">
+        <item name="indicatorColor">@color/gh_accent</item>
+        <item name="trackColor">@android:color/transparent</item>
+        <item name="trackThickness">3dp</item>
+        <item name="android:indeterminate">true</item>
+    </style>
+
+    <style name="Widget.GH.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/gh_text_enabled</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.BodyLarge</item>
+        <item name="android:minHeight">@dimen/gh_touch_min</item>
+    </style>
+
+    <!-- ===================== Shapes ===================== -->
+
+    <style name="ShapeAppearance.GH.Small" parent="ShapeAppearance.Material3.Corner.Small">
+        <item name="cornerSize">@dimen/gh_radius_s</item>
+    </style>
+
+    <style name="ShapeAppearance.GH.Medium" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerSize">@dimen/gh_radius_m</item>
+    </style>
+
+    <style name="ShapeAppearance.GH.Large" parent="ShapeAppearance.Material3.Corner.Large">
+        <item name="cornerSize">@dimen/gh_radius_l</item>
+    </style>
+</resources>

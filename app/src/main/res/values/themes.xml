@@ -1,9 +1,80 @@
 <resources>
+    <!--
+        App theme. Colors come from the gh_* tokens (colors.xml), type from
+        TextAppearance.GH.* (type.xml), so default Material widgets (buttons,
+        chips, tabs, checkboxes, inputs, dialogs, snackbars) pick up the bundled
+        fonts. Plain TextViews are not restyled globally: the homescreen widget
+        (RemoteViews) and the share card (Canvas) keep their own fonts/colors.
+    -->
     <style name="Theme.GitHubWidget" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">#39D353</item>
-        <!-- White button text everywhere: dark-tinted buttons inherit this. -->
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="android:windowBackground">#010409</item>
-        <item name="colorSurface">#0D1117</item>
+        <!-- Accent. Text on bright green is near-black (10.4:1); filled CTAs use
+             Widget.GH.Button.Primary (#238636 + white, 4.63:1). -->
+        <item name="colorPrimary">@color/gh_accent</item>
+        <item name="colorOnPrimary">@color/gh_on_accent</item>
+        <item name="colorPrimaryContainer">@color/gh_accent_button</item>
+        <item name="colorOnPrimaryContainer">@color/gh_on_accent_button</item>
+        <item name="colorPrimaryInverse">@color/gh_accent_inverse</item>
+        <item name="colorSecondary">@color/gh_accent</item>
+        <item name="colorOnSecondary">@color/gh_on_accent</item>
+        <item name="colorSecondaryContainer">@color/gh_accent_tonal</item>
+        <item name="colorOnSecondaryContainer">@color/gh_text</item>
+        <item name="colorTertiary">@color/gh_accent</item>
+
+        <!-- Surfaces -->
+        <item name="android:colorBackground">@color/gh_bg</item>
+        <item name="colorOnBackground">@color/gh_text</item>
+        <item name="android:windowBackground">@color/gh_bg</item>
+        <item name="colorSurface">@color/gh_surface</item>
+        <item name="colorOnSurface">@color/gh_text</item>
+        <item name="colorSurfaceVariant">@color/gh_surface_raised</item>
+        <item name="colorOnSurfaceVariant">@color/gh_text_muted</item>
+        <item name="colorSurfaceDim">@color/gh_bg</item>
+        <item name="colorSurfaceBright">@color/gh_surface_bright</item>
+        <item name="colorSurfaceContainerLowest">@color/gh_bg</item>
+        <item name="colorSurfaceContainerLow">@color/gh_surface</item>
+        <item name="colorSurfaceContainer">@color/gh_surface_raised</item>
+        <item name="colorSurfaceContainerHigh">@color/gh_surface_control</item>
+        <item name="colorSurfaceContainerHighest">@color/gh_surface_bright</item>
+        <item name="colorSurfaceInverse">@color/gh_text</item>
+        <item name="colorOnSurfaceInverse">@color/gh_surface</item>
+        <item name="colorOutline">@color/gh_outline</item>
+        <item name="colorOutlineVariant">@color/gh_outline_variant</item>
+        <item name="colorError">@color/gh_danger</item>
+        <item name="colorErrorContainer">@color/gh_danger_container</item>
+        <item name="colorOnErrorContainer">@color/gh_on_danger_container</item>
+
+        <!-- System bars match the page (MainActivity draws edge-to-edge on top). -->
+        <item name="android:statusBarColor">@color/gh_bg</item>
+        <item name="android:navigationBarColor">@color/gh_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Type: Space Grotesk headings, Inter body/labels -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.GH.Display</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.GH.Display</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.GH.Display</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.GH.Display</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.GH.Headline</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.GH.Headline</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.GH.Headline</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.GH.Title</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.GH.Section</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.GH.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.GH.Body</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.GH.Caption</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.GH.Button</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.GH.Label</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.GH.Caption</item>
+
+        <!-- Shapes -->
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.GH.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.GH.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.GH.Large</item>
+
+        <!-- Component defaults that are safe everywhere. A plain filled MaterialButton
+             gets light text on a dark-green fill, so buttons that only set a dark
+             backgroundTint keep white labels now that colorOnPrimary is near-black. -->
+        <item name="materialButtonStyle">@style/Widget.GH.Button.Default</item>
+        <item name="sliderStyle">@style/Widget.GH.Slider</item>
+        <item name="linearProgressIndicatorStyle">@style/Widget.GH.ProgressLinear</item>
     </style>
 </resources>
