@@ -205,7 +205,8 @@ class MainActivity : AppCompatActivity() {
             } else {
                 footer.visibility = View.GONE
             }
-            val s = Studio.textScale(Studio.getTextSize(this))
+            // Same font scale the widget applies (e.g. Press Start 2P runs wide).
+            val s = Studio.textScale(Studio.getTextSize(this)) * Fonts.selected(this).scale
             title.textSize = 15f * s
             subtitle.textSize = 12f * s
             total.textSize = 24f * s
