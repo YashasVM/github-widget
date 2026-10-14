@@ -557,7 +557,7 @@ class MainActivity : AppCompatActivity() {
             syncAll()
             repaintWidget()
             say(msg, "Undo") {
-                Studio.importLook(this, before)
+                Studio.importLook(this, before, replace = true)
                 syncAll()
                 repaintWidget()
             }
@@ -935,7 +935,7 @@ class MainActivity : AppCompatActivity() {
                         syncAll()
                         repaintWidget()
                         say("Look imported", "Undo") {
-                            Studio.importLook(this, before)
+                            Studio.importLook(this, before, replace = true)
                             syncAll()
                             repaintWidget()
                         }

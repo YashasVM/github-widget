@@ -130,7 +130,7 @@ class SettingsActivity : AppCompatActivity() {
                     Studio.setShowActiveDays(this, false)
                     Prefs.requestRepaint(this)
                     Ui.snack(root, "Look reset", action = "Undo") {
-                        if (Studio.importLook(this, before) == null) Prefs.requestRepaint(this)
+                        if (Studio.importLook(this, before, replace = true) == null) Prefs.requestRepaint(this)
                     }
                 }
                 .setNegativeButton("Cancel", null)
@@ -212,7 +212,7 @@ class SettingsActivity : AppCompatActivity() {
                 if (err == null) {
                     Prefs.requestRepaint(this)
                     Ui.snack(root, "Look imported", action = "Undo") {
-                        if (Studio.importLook(this, before) == null) Prefs.requestRepaint(this)
+                        if (Studio.importLook(this, before, replace = true) == null) Prefs.requestRepaint(this)
                     }
                 } else {
                     say(err)
