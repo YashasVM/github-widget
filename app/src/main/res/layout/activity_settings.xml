@@ -160,6 +160,16 @@
         android:textSize="12sp"
         android:typeface="monospace" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/set_font_licenses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Open-source fonts"
+        android:textSize="12sp"
+        app:backgroundTint="#21262D"
+        app:cornerRadius="12dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
