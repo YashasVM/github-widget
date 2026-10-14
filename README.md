@@ -1,18 +1,18 @@
 # GH-widgets
 
-**Current version: v2.2.0** — premium share cards with your avatar, new app icon, readable white button text.
+**Current version: v2.3.0** — 7 fonts, a redesigned app and widget, and a much lighter battery footprint.
 
 Your GitHub contribution graph, live on your Android homescreen. Customize it, draw on it, use your own background, track your activity.
 
 <p align="center">
-  <a href="https://github.com/mrduhlol/github-widget/releases/latest/download/GH-widget.v2.2.0.apk">
+  <a href="https://github.com/mrduhlol/github-widget/releases/latest/download/GH-widget.v2.3.0.apk">
     <img height="64" alt="Download GH-widgets for Android" src="https://img.shields.io/badge/GET_GH%E2%80%90WIDGETS_FOR_ANDROID-238636?style=for-the-badge&logo=android&logoColor=white" />
   </a>
   <br />
   <sub>Tap the button on your phone — the APK installs straight from your files.</sub>
   <br /><br />
   <img alt="Latest release" src="https://img.shields.io/github/v/release/mrduhlol/github-widget?style=flat-square&label=version&color=1F6FEB" />
-  <img alt="APK size" src="https://img.shields.io/badge/size-%7E5.6_MB-0D1117?style=flat-square" />
+  <img alt="APK size" src="https://img.shields.io/badge/size-%7E6.2_MB-0D1117?style=flat-square" />
   <img alt="Android" src="https://img.shields.io/badge/android-8.0%2B-39D353?style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/free-no_sign%E2%80%90in-8B949E?style=flat-square" />
 </p>
@@ -20,8 +20,12 @@ Your GitHub contribution graph, live on your Android homescreen. Customize it, d
 ## Features
 
 - Live contribution graph on your homescreen
-- Everything on one page — live preview plus theme, style, graph, background, content and presets, no screen-hopping
-- High-contrast buttons and option chips — white text everywhere, unmistakable selected states, 48dp touch targets
+- Fonts — System, Inter, Space Grotesk, JetBrains Mono, Outfit, Press Start 2P (pixel) and DM Serif Display for the widget, preview and share cards
+- Battery-friendly refresh — one shared fetch for all widgets, scheduled with JobScheduler (network + battery-not-low), skips the network when data is fresh, respects Battery Saver and Data Saver, ETag requests so unchanged data costs almost nothing
+- Refresh settings — background interval (Off, 1h, 3h, 6h, 12h, 24h) and Wi‑Fi only
+- Redesigned app — pinned live preview with Presets · Colors · Graph · Background · Text tabs, onboarding, loading and error states, Undo, accessible controls that scale to 200% font
+- Widget fills its space at every size, single-line header, refresh icon, real picker preview, reconfigurable on Android 12+
+- Accessible colors (WCAG AA text contrast), clear selected states, 48dp touch targets
 - Premium share cards — circular profile avatar with accent ring, stat band, records row
 - 5 widget styles — Classic, Minimal, Compact, Terminal, Glass
 - 5 graph themes — Matrix, Nebula, Abyss, Ember, Neon — plus spectrum color picker
@@ -49,7 +53,7 @@ Your GitHub contribution graph, live on your Android homescreen. Customize it, d
 ## Use
 
 1. Open **GH-widgets**, enter your GitHub username — your graph appears instantly
-2. Tap **Customize widget** to open the Widget Studio — every change previews live
+2. Style it in the Studio tabs under the pinned preview — every change previews live
 3. Long-press your homescreen → **Widgets** → **GH-widgets** → style it during setup
 4. Tap the widget graph for analytics, the header for your GitHub profile
 
@@ -78,6 +82,8 @@ GraphRenderer (palette, shape, size, spacing, image tint)
                   ↓
 Widget / Studio preview / Share card (one pipeline)
 ```
+
+Refresh: `RefreshJobService` (JobScheduler, constrained) and the widget's refresh icon both go through `Refresher` — one conditional GET (ETag) per batch, then every widget repaints from the cache. Rendered backgrounds and image samples are cached on disk, keyed by their inputs.
 
 - `SharedPreferences` for settings (never images); drawings as PNG files; share via `FileProvider`
 - Photo Picker for images — no storage permission
