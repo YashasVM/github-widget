@@ -28,7 +28,7 @@
             <TextView
                 style="@style/WidgetText.Total"
                 android:text="@string/widget_preview_total"
-                android:typeface="monospace"
+                android:fontFamily="sans-serif"
                 android:visibility="visible" />
         </LinearLayout>
 

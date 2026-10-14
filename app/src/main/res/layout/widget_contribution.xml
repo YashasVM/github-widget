@@ -34,7 +34,7 @@
             <TextView
                 android:id="@+id/widget_total"
                 style="@style/WidgetText.Total"
-                android:typeface="monospace" />
+                android:fontFamily="sans-serif" />
         </LinearLayout>
 
         <ImageView

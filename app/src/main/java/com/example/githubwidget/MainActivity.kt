@@ -267,33 +267,30 @@ class MainActivity : AppCompatActivity() {
             user.text = "@${result.username}"
             updated.text = "Updated $ago"
             title.text = "@${result.username}"
-            val today = result.days.lastOrNull()?.count ?: 0
+            // Same copy as the homescreen widget (WidgetCopy), drawn as a roomy 4x2:
+            // big total, full subtitle, footer with "Updated 5m ago".
             val stats = Stats.compute(result.days)
-            val parts = ArrayList<String>()
-            parts.add("Today: $today")
-            if (WidgetPrefs.showStreak(this)) parts.add("${stats.currentStreak}d streak")
-            if (WidgetPrefs.showTotal(this)) parts.add("${fmt(result.totalLastYear)}/yr")
-            if (Studio.showActiveDays(this)) parts.add("${stats.activeDays} active")
-            subtitle.text = parts.joinToString(" • ")
-            if (WidgetPrefs.showTotal(this)) {
-                total.visibility = View.VISIBLE
-                total.text = fmt(result.totalLastYear)
-                total.setTextColor(t.accent)
-            } else {
-                total.visibility = View.GONE
+            val content = WidgetCopy.content(
+                WidgetPrefs.getStyle(this), result, stats,
+                WidgetCopy.Options(
+                    showTotal = WidgetPrefs.showTotal(this),
+                    showStreak = WidgetPrefs.showStreak(this),
+                    showLongest = WidgetPrefs.showLongest(this),
+                    showUpdated = WidgetPrefs.showUpdated(this),
+                    showActive = Studio.showActiveDays(this),
+                    customLabel = Studio.getCustomLabel(this)
+                ),
+                WidgetCopy.Fit(maxWeeks = weeks, monthLabels = true, showFooter = true, compact = false),
+                WidgetCopy.status(ago, offline = false)
+            )
+            fun show(v: TextView, text: String?) {
+                v.visibility = if (text == null) View.GONE else View.VISIBLE
+                if (text != null) v.text = text
             }
-            val label = Studio.getCustomLabel(this)
-            if (label.isNotEmpty()) {
-                footer.visibility = View.VISIBLE
-                footer.text = label
-            } else if (WidgetPrefs.showUpdated(this)) {
-                footer.visibility = View.VISIBLE
-                var tail = "updated $ago"
-                if (WidgetPrefs.showLongest(this)) tail += " • ${stats.longestStreak}d longest"
-                footer.text = tail
-            } else {
-                footer.visibility = View.GONE
-            }
+            show(subtitle, content.subtitle)
+            show(total, content.total)
+            show(footer, content.footer)
+            total.setTextColor(t.accent)
             // Same font scale the widget applies (e.g. Press Start 2P runs wide).
             val s = Studio.textScale(Studio.getTextSize(this)) * Fonts.selected(this).scale
             title.textSize = 15f * s
@@ -303,6 +300,7 @@ class MainActivity : AppCompatActivity() {
             title.typeface = Fonts.current(this, bold = true)
             subtitle.typeface = Fonts.current(this)
             total.typeface = Fonts.numbers(this)
+            total.fontFeatureSettings = "tnum"
             footer.typeface = Fonts.current(this)
             paintCard()
         }

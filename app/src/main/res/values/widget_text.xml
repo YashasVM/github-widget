@@ -99,8 +99,12 @@
         <item name="android:text">@string/widget_placeholder_subtitle</item>
     </style>
 
+    <!-- Tabular figures so the number doesn't jiggle between refreshes. The system
+         layout uses proportional sans-serif (bold): monospace put wide gaps around
+         the comma ("1 , 408"). -->
     <style name="WidgetText.Total">
         <item name="android:layout_marginStart">8dp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
         <item name="android:textColor">@color/widget_accent</item>
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>

@@ -117,10 +117,12 @@ object Fonts {
     fun current(context: Context, bold: Boolean = false): Typeface =
         typeface(context, get(context), bold)
 
-    /** Big numbers: system keeps its bold monospace, other fonts use their bold. */
-    fun numbers(context: Context): Typeface =
-        if (isSystem(context)) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-        else current(context, bold = true)
+    /**
+     * Big numbers: the chosen font's bold. System uses bold sans (proportional, so
+     * no "1 , 408" gaps that monospace commas cause); pair it with tnum figures,
+     * like widget_contribution.xml does.
+     */
+    fun numbers(context: Context): Typeface = current(context, bold = true)
 
     /** Month labels etc. on drawn bitmaps: null keeps the Paint default. */
     fun graphLabels(context: Context): Typeface? =

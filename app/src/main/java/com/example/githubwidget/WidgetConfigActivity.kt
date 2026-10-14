@@ -469,6 +469,7 @@ class WidgetConfigActivity : AppCompatActivity() {
         title.typeface = Fonts.current(this, bold = true)
         subtitle.typeface = Fonts.current(this)
         total.typeface = Fonts.numbers(this)
+        total.fontFeatureSettings = "tnum"
         footer.typeface = Fonts.current(this)
 
         preview.contentDescription = buildString {
