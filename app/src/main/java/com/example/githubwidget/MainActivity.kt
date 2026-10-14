@@ -89,6 +89,21 @@ class MainActivity : AppCompatActivity() {
         bar.show()
     }
 
+    /**
+     * Sets a slider from a saved value. Slider throws if the value is outside
+     * valueFrom..valueTo or off the stepSize grid, and saved values can come
+     * from an imported look (any number), so clamp and snap first.
+     */
+    private fun Slider.setSafeValue(v: Float) {
+        val c = v.coerceIn(valueFrom, valueTo)
+        val snapped = if (stepSize > 0f) {
+            valueFrom + Math.round((c - valueFrom) / stepSize) * stepSize
+        } else {
+            c
+        }
+        value = snapped.coerceIn(valueFrom, valueTo)
+    }
+
     private fun hideKeyboard(v: View) {
         getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(v.windowToken, 0)
     }
@@ -519,17 +534,17 @@ class MainActivity : AppCompatActivity() {
             val angles = listOf(0, 45, 90, 135)
             Ui.select(angleButtons, angles.indexOf(Studio.getGradAngle(this)).coerceAtLeast(0))
             Ui.select(overlayButtons, overlayIndex())
-            cellSlider.value = Studio.getCellSize(this)
+            cellSlider.setSafeValue(Studio.getCellSize(this))
             cellText.text = "${(Studio.getCellSize(this) * 100).toInt()}%"
-            spacingSlider.value = WidgetPrefs.getSpacing(this)
+            spacingSlider.setSafeValue(WidgetPrefs.getSpacing(this))
             spacingText.text = spacingLabel(WidgetPrefs.getSpacing(this))
-            cornersSlider.value = WidgetPrefs.getCorners(this).toFloat()
+            cornersSlider.setSafeValue(WidgetPrefs.getCorners(this).toFloat())
             cornersText.text = "${WidgetPrefs.getCorners(this)}dp"
-            bgOpSlider.value = Studio.getBgOpacity(this).toFloat()
+            bgOpSlider.setSafeValue(Studio.getBgOpacity(this).toFloat())
             bgOpText.text = "${Studio.getBgOpacity(this)}%"
-            blurSlider.value = Studio.getBlur(this).toFloat()
+            blurSlider.setSafeValue(Studio.getBlur(this).toFloat())
             blurText.text = if (Studio.getBlur(this) == 0) "Off" else "${Studio.getBlur(this)}"
-            ovOpSlider.value = Studio.getOverlayOpacity(this).toFloat()
+            ovOpSlider.setSafeValue(Studio.getOverlayOpacity(this).toFloat())
             ovOpText.text = "${Studio.getOverlayOpacity(this)}%"
             gradThird.isChecked = Studio.getGrad3(this) != null
             gradRadial.isChecked = Studio.isGradRadial(this)
@@ -617,7 +632,7 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
             }
-            ovOpSlider.value = Studio.getOverlayOpacity(this).toFloat()
+            ovOpSlider.setSafeValue(Studio.getOverlayOpacity(this).toFloat())
             ovOpText.text = "${Studio.getOverlayOpacity(this)}%"
             Ui.select(overlayButtons, overlayIndex())
             repaintPreview()
