@@ -1140,7 +1140,11 @@ class MainActivity : AppCompatActivity() {
         load(Prefs.getUsername(this))
         if (Prefs.getUsername(this).isBlank()) input.requestFocus()
         openAccountHook = { openAccount() }
-        if (intent?.getBooleanExtra(EXTRA_OPEN_ACCOUNT, false) == true) openAccount()
+        // Only on a fresh launch: after rotation/process restore the extra is still
+        // on the intent and would pop the account card open again.
+        if (savedInstanceState == null && intent?.getBooleanExtra(EXTRA_OPEN_ACCOUNT, false) == true) {
+            openAccount()
+        }
     }
 
     /** Assigned in onCreate: re-syncs controls + repaints cached data, no network. */
