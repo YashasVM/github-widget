@@ -10,9 +10,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.checkbox.MaterialCheckBox
 import java.io.File
 
-/** Settings: data, look transfer, reset, privacy, about. */
+/** Settings: data, refresh schedule, look transfer, reset, privacy, about. */
 class SettingsActivity : AppCompatActivity() {
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
@@ -50,6 +51,34 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
+        }
+
+        val intervalBtn = findViewById<MaterialButton>(R.id.set_interval)
+        fun paintInterval() {
+            intervalBtn.text = "Background refresh: ${intervalLabel(Prefs.getRefreshHours(this))}"
+        }
+        paintInterval()
+        intervalBtn.setOnClickListener {
+            val choices = Prefs.REFRESH_HOURS
+            AlertDialog.Builder(this)
+                .setTitle("Background refresh")
+                .setSingleChoiceItems(
+                    choices.map { intervalLabel(it) }.toTypedArray(),
+                    choices.indexOf(Prefs.getRefreshHours(this))
+                ) { dialog, which ->
+                    Prefs.setRefreshHours(this, choices[which])
+                    paintInterval()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        findViewById<MaterialCheckBox>(R.id.set_wifi_only).apply {
+            isChecked = Prefs.isWifiOnly(this@SettingsActivity)
+            setOnCheckedChangeListener { _, checked ->
+                Prefs.setWifiOnly(this@SettingsActivity, checked)
+            }
         }
 
         findViewById<MaterialButton>(R.id.set_export).setOnClickListener {
@@ -129,6 +158,19 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val ts = Cache.fetchedAt(this)
+        findViewById<TextView>(R.id.set_last_refreshed).text =
+            "Last refreshed: ${TimeAgo.format(ts)}"
+    }
+
+    private fun intervalLabel(hours: Int): String = when (hours) {
+        0 -> "Off (manual only)"
+        1 -> "every hour"
+        else -> "every $hours hours"
+    }
+
     private fun resetEverything() {
         for (name in listOf("github_widget_prefs", "gh_widget_style", "gh_studio", "gh_widget_cache")) {
             getSharedPreferences(name, MODE_PRIVATE).edit().clear().apply()
@@ -140,6 +182,7 @@ class SettingsActivity : AppCompatActivity() {
         } catch (_: Exception) {
             // Per-widget files are best-effort; globals already reset.
         }
+        RefreshScheduler.sync(this)
         Prefs.requestRefresh(this)
     }
 }
