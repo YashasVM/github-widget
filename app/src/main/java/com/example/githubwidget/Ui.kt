@@ -15,17 +15,20 @@ import android.widget.Checkable
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.core.widget.TextViewCompat
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -350,6 +353,31 @@ object Ui {
     }
 
     // ---------- window ----------
+
+    /** Sub-screen top bar: the back arrow behaves like system back. */
+    fun topBar(activity: ComponentActivity, toolbar: MaterialToolbar) {
+        toolbar.setNavigationOnClickListener { activity.onBackPressedDispatcher.onBackPressed() }
+    }
+
+    /** Short inline message (instead of a Toast), optionally with one action. */
+    fun snack(
+        anchor: View,
+        msg: CharSequence,
+        action: String? = null,
+        long: Boolean = false,
+        above: View? = null,
+        onAction: (() -> Unit)? = null
+    ) {
+        val bar = Snackbar.make(
+            anchor, msg,
+            if (long || action != null) Snackbar.LENGTH_LONG
+            else Snackbar.LENGTH_SHORT
+        )
+        if (action != null && onAction != null) bar.setAction(action) { onAction() }
+        // Sit above a sticky bottom bar instead of covering it.
+        if (above != null) bar.anchorView = above
+        bar.show()
+    }
 
     /**
      * Draws the activity edge-to-edge and pads [top] by the status bar, [bottom]

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Determinate progress meter; inflated by ActivityUi for weekday bars and achievements. -->
+<com.google.android.material.progressindicator.LinearProgressIndicator xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.GH.Meter"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />

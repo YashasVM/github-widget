@@ -4,7 +4,7 @@
     backgroundTint / cornerRadius / strokeColor / textSize on every view.
     Type lives in type.xml, colors in colors.xml, spacing in dimens.xml.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ===================== Text (TextView styles with color) ===================== -->
 
@@ -15,12 +15,14 @@
 
     <style name="Widget.GH.Text.Display">
         <item name="android:textAppearance">@style/TextAppearance.GH.Display</item>
-        <item name="android:accessibilityHeading">true</item>
+        <!-- Ignored below API 28. -->
+        <item name="android:accessibilityHeading" tools:targetApi="28">true</item>
     </style>
 
     <style name="Widget.GH.Text.Headline">
         <item name="android:textAppearance">@style/TextAppearance.GH.Headline</item>
-        <item name="android:accessibilityHeading">true</item>
+        <!-- Ignored below API 28. -->
+        <item name="android:accessibilityHeading" tools:targetApi="28">true</item>
     </style>
 
     <style name="Widget.GH.Text.Title">
@@ -30,7 +32,8 @@
     <!-- Section header inside a screen: heading for TalkBack navigation. -->
     <style name="Widget.GH.Text.Section">
         <item name="android:textAppearance">@style/TextAppearance.GH.Section</item>
-        <item name="android:accessibilityHeading">true</item>
+        <!-- Ignored below API 28. -->
+        <item name="android:accessibilityHeading" tools:targetApi="28">true</item>
     </style>
 
     <style name="Widget.GH.Text.Body" />
@@ -257,6 +260,97 @@
         <item name="android:textColor">@color/gh_text_enabled</item>
         <item name="android:textAppearance">@style/TextAppearance.GH.BodyLarge</item>
         <item name="android:minHeight">@dimen/gh_touch_min</item>
+    </style>
+
+    <!-- Determinate meter (achievement progress, weekday bars): rounded, with a visible track. -->
+    <style name="Widget.GH.Meter" parent="Widget.Material3.LinearProgressIndicator">
+        <item name="android:indeterminate">false</item>
+        <item name="indicatorColor">@color/gh_accent</item>
+        <item name="trackColor">@color/gh_surface_control</item>
+        <item name="trackThickness">8dp</item>
+        <item name="trackCornerRadius">4dp</item>
+        <item name="showAnimationBehavior">none</item>
+    </style>
+
+    <!-- ===================== Navigation ===================== -->
+
+    <!-- Sub-screen top bar: back arrow + title. Set the title in the layout. -->
+    <style name="Widget.GH.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/gh_bg</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="navigationIcon">@drawable/ic_ui_arrow_back_24</item>
+        <item name="navigationContentDescription">@string/gh_navigate_up</item>
+        <item name="navigationIconTint">@color/gh_text</item>
+        <item name="titleTextAppearance">@style/TextAppearance.GH.Title</item>
+        <item name="titleTextColor">@color/gh_text</item>
+    </style>
+
+    <style name="Widget.GH.AppBar" parent="Widget.Material3.AppBarLayout">
+        <item name="android:background">@color/gh_bg</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="liftOnScroll">false</item>
+    </style>
+
+    <!-- ===================== Lists (settings rows) ===================== -->
+
+    <!-- Tappable row: leading icon, title + summary, optional trailing view.
+         TalkBack reads the row's texts together. Min 56dp at any font scale. -->
+    <style name="Widget.GH.ListRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingStart">@dimen/gh_space_l</item>
+        <item name="android:paddingEnd">@dimen/gh_space_l</item>
+        <item name="android:paddingTop">@dimen/gh_space_m</item>
+        <item name="android:paddingBottom">@dimen/gh_space_m</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.GH.ListRow.Icon" parent="">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_marginEnd">@dimen/gh_space_l</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="tint">@color/gh_text_muted</item>
+    </style>
+
+    <style name="Widget.GH.ListRow.Texts" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="Widget.GH.ListRow.Title" parent="Widget.GH.Text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.GH.BodyLarge</item>
+    </style>
+
+    <style name="Widget.GH.ListRow.Summary" parent="Widget.GH.Text.Caption">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+    </style>
+
+    <style name="Widget.GH.ListRow.Chevron" parent="">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_marginStart">@dimen/gh_space_s</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="tint">@color/gh_text_muted</item>
+    </style>
+
+    <!-- Section header above a card group ("Refresh", "Look"). -->
+    <style name="Widget.GH.Text.Section.Group">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/gh_space_xl</item>
+        <item name="android:layout_marginBottom">@dimen/gh_space_s</item>
     </style>
 
     <!-- ===================== Shapes ===================== -->
