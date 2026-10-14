@@ -115,9 +115,15 @@ class WidgetConfigActivity : AppCompatActivity() {
         themeId = WidgetInstance.getThemeId(this, widgetId)
         styleId = WidgetInstance.getStyle(this, widgetId)
         rangeId = WidgetInstance.getRange(this, widgetId)
-        val opacity = WidgetInstance.getOpacity(this, widgetId)
+        // Same rule as the widget (ContributionWidgetProvider.baseViews): its own
+        // opacity once configured, otherwise the Studio background opacity.
+        val opacity = if (WidgetInstance.hasCustom(this, widgetId)) {
+            WidgetInstance.getOpacity(this, widgetId)
+        } else {
+            Studio.getBgOpacity(this)
+        }
         slider.value = (opacity.coerceIn(20, 100) / 5 * 5).toFloat()
-        opacityText.text = "$opacity%"
+        opacityText.text = "${slider.value.toInt()}%"
         chkTotal.isChecked = WidgetInstance.showTotal(this, widgetId)
         chkStreak.isChecked = WidgetInstance.showStreak(this, widgetId)
         chkLongest.isChecked = WidgetInstance.showLongest(this, widgetId)
