@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Static widget-picker preview (android:previewLayout, API 31+). Same structure and
+    styles as widget_contribution.xml, filled with sample data and a pre-rendered graph
+    (drawable-nodpi/widget_preview_graph.png, drawn by GraphRenderer) so the picker shows
+    what the widget really looks like. API 26-30 use widget_preview_image.png instead.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    style="@style/WidgetRoot"
+    android:background="@drawable/widget_preview_bg">
+
+    <LinearLayout style="@style/WidgetContent">
+
+        <LinearLayout style="@style/WidgetHeaderRow">
+
+            <LinearLayout style="@style/WidgetHeaderText">
+
+                <TextView
+                    style="@style/WidgetText.Title"
+                    android:text="@string/widget_preview_title" />
+
+                <TextView
+                    style="@style/WidgetText.Subtitle"
+                    android:text="@string/widget_preview_subtitle" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/WidgetText.Total"
+                android:text="@string/widget_preview_total"
+                android:typeface="monospace"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <ImageView
+            style="@style/WidgetGraph"
+            android:contentDescription="@string/widget_preview_desc"
+            android:src="@drawable/widget_preview_graph" />
+
+        <TextView
+            style="@style/WidgetText.Updated"
+            android:text="@string/widget_preview_footer"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <ImageView style="@style/WidgetRefresh" />
+</FrameLayout>

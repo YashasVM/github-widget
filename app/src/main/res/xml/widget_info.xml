@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    previewLayout (API 31+) is a static, populated sample of the widget; previewImage is a
+    PNG of the same sample for API 26-30 pickers. widgetFeatures (API 31+): "Reconfigure"
+    in the long-press menu, and setup may be skipped when placing the widget (it then uses
+    the app's defaults and shows a "Set up" state until a username is entered).
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="com.example.githubwidget.WidgetConfigActivity"
     android:description="@string/widget_desc"
     android:initialLayout="@layout/widget_contribution"
-    android:previewLayout="@layout/widget_contribution"
+    android:previewImage="@drawable/widget_preview_image"
+    android:previewLayout="@layout/widget_preview"
     android:minWidth="250dp"
     android:minHeight="110dp"
     android:minResizeWidth="110dp"
@@ -12,4 +19,5 @@
     android:targetCellWidth="4"
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen" />
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />
