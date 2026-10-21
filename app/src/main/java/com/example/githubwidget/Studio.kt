@@ -296,6 +296,15 @@ object Studio {
                 if (!k.startsWith("studio_")) continue
                 val name = k.removePrefix("studio_")
                 val v = look.get(k)
+                // JSON may encode 1.0 as integer 1; never store another type here.
+                if (name == KEY_CELL_SIZE) {
+                    val size = (v as? Number)?.toDouble()
+                    if (size != null && size.isFinite()) {
+                        // Clamp before converting so finite doubles cannot overflow Float.
+                        e.putFloat(name, size.coerceIn(0.8, 1.3).toFloat())
+                    }
+                    continue
+                }
                 when (v) {
                     is Int -> e.putInt(name, v)
                     is Boolean -> e.putBoolean(name, v)
@@ -310,3 +319,4 @@ object Studio {
         }
     }
 }
+
